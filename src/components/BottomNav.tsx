@@ -31,10 +31,13 @@ export function BottomNav({ active, onChange, recordButton }: Props) {
   };
 
   return (
-    <nav className="flex items-center border-t border-border pt-2 pb-4 flex-shrink-0 min-h-[88px]">
+    <nav
+      className="flex items-center border-t border-border pt-2 flex-shrink-0"
+      style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+    >
       <div className="flex-1 flex justify-center">{navBtn('home', '⌂', t.nav.home)}</div>
       <div className="flex-1 flex justify-center">{navBtn('tags', '🏷', t.nav.tags)}</div>
-      <div className="flex-1 flex items-center justify-center">{recordButton}</div>
+      <div className="flex-1 flex items-center justify-center pb-2">{recordButton}</div>
     </nav>
   );
 }

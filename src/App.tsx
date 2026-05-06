@@ -565,8 +565,12 @@ function App() {
       ? 'tags'
       : 'home';
 
-  const swipeNav = useSwipeNav(activeNav, (next) => {
-    if (next === 'tags') setView({ name: 'tags' });
+  const swipeActiveNav: 'home' | 'tags' | 'recording' =
+    view.name === 'recording' ? 'recording' : activeNav;
+
+  const swipeNav = useSwipeNav(swipeActiveNav, (next) => {
+    if (next === 'recording') setView({ name: 'recording' });
+    else if (next === 'tags') setView({ name: 'tags' });
     else setView({ name: 'home' });
   });
 
@@ -630,7 +634,7 @@ function App() {
   );
 
   // Only attach swipe on top-level nav screens (not inside detail/edit screens)
-  const isSwipeable = view.name === 'home' || view.name === 'tags';
+  const isSwipeable = view.name === 'home' || view.name === 'tags' || view.name === 'recording';
 
   return (
     <PhoneFrame>

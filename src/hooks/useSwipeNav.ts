@@ -1,8 +1,8 @@
 import { useRef, useCallback } from 'react';
 
-type NavKey = 'home' | 'tags';
+type NavKey = 'home' | 'tags' | 'recording';
 
-const NAV_ORDER: NavKey[] = ['home', 'tags'];
+const NAV_ORDER: NavKey[] = ['home', 'tags', 'recording'];
 const THRESHOLD = 50; // px minimum to count as swipe
 const MAX_VERTICAL_RATIO = 0.8; // ignore if more vertical than horizontal
 
