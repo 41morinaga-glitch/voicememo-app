@@ -138,26 +138,20 @@ type Dict = {
   };
   cloud: {
     title: string;
-    autoSync: string;
-    notConfigured: string;
-    setupGuideTitle: string;
-    setupSteps: string[];
-    googleDrive: string;
-    iCloud: string;
-    dropbox: string;
-    notConnected: string;
-    notConnectedStub: string;
-    notSet: string;
-    connect: string;
+    subtitle: string;
+    notConfiguredTitle: string;
+    notConfiguredBody: string;
+    connectBtn: string;
     connecting: string;
     syncing: string;
-    connected: string;
-    confirmDisconnect: (name: string) => string;
+    connectedLabel: string;
     lastSync: string;
     syncedLabel: string;
     syncedMemos: (n: number) => string;
-    format: string;
     syncNow: string;
+    disconnect: string;
+    confirmDisconnect: string;
+    errorLabel: string;
   };
   pdf: {
     title: string;
@@ -338,35 +332,21 @@ export const STRINGS: Record<Locale, Dict> = {
       testRec: '🎙 テスト録音で確認する',
     },
     cloud: {
-      title: '保存先 · 同期',
-      autoSync: '✓ 録音保存のたびに即時同期',
-      notConfigured:
-        '⚠ Google Drive 連携には VITE_GOOGLE_CLIENT_ID が必要です。.env.local に貼り付けて再起動してください。',
-      setupGuideTitle: '📖 Google Drive セットアップ手順',
-      setupSteps: [
-        'console.cloud.google.com で新規プロジェクト作成',
-        '「Google Drive API」を有効化',
-        '「OAuth 2.0 クライアント ID」を作成（Web アプリケーション）',
-        '承認済み JS 生成元に http://localhost:5179 を追加',
-        'クライアント ID を .env.local の VITE_GOOGLE_CLIENT_ID に貼り付け',
-        'dev サーバーを再起動',
-      ],
-      googleDrive: 'Google ドライブ',
-      iCloud: 'iCloud',
-      dropbox: 'Dropbox',
-      notConnected: '未接続',
-      notConnectedStub: '未接続（スタブ）',
-      notSet: '未設定',
-      connect: '接続する',
+      title: 'Googleドライブ同期',
+      subtitle: 'スマホ・PC・iPadのデータを自動で同期します',
+      notConfiguredTitle: '初回設定が必要です',
+      notConfiguredBody: 'Googleドライブと連携するには、最初に1回だけ設定が必要です。設定はアプリ管理者が行います。',
+      connectBtn: 'Googleでログイン',
       connecting: '認証中…',
       syncing: '同期中…',
-      connected: '接続済',
-      confirmDisconnect: (n) => `${n} の接続を解除しますか？`,
+      connectedLabel: '接続済み',
       lastSync: '最終同期',
       syncedLabel: '同期済みメモ',
       syncedMemos: (n) => `${n} 件`,
-      format: '保存形式',
       syncNow: '今すぐ同期',
+      disconnect: '接続解除',
+      confirmDisconnect: 'Googleドライブの接続を解除しますか？',
+      errorLabel: 'エラー',
     },
     pdf: {
       title: 'PDF出力',
@@ -617,35 +597,21 @@ export const STRINGS: Record<Locale, Dict> = {
       testRec: '🎙 Test in recording',
     },
     cloud: {
-      title: 'Storage · Sync',
-      autoSync: '✓ Syncs immediately on save',
-      notConfigured:
-        '⚠ Google Drive needs VITE_GOOGLE_CLIENT_ID. Set it in .env.local and restart.',
-      setupGuideTitle: '📖 Google Drive setup',
-      setupSteps: [
-        'Create a project at console.cloud.google.com',
-        'Enable the Google Drive API',
-        'Create an OAuth 2.0 Client ID (Web)',
-        'Add http://localhost:5179 to authorized JS origins',
-        'Paste the client ID into VITE_GOOGLE_CLIENT_ID in .env.local',
-        'Restart the dev server',
-      ],
-      googleDrive: 'Google Drive',
-      iCloud: 'iCloud',
-      dropbox: 'Dropbox',
-      notConnected: 'Not connected',
-      notConnectedStub: 'Not connected (stub)',
-      notSet: 'Not set',
-      connect: 'Connect',
+      title: 'Google Drive Sync',
+      subtitle: 'Keep your data in sync across phone, PC and iPad.',
+      notConfiguredTitle: 'Setup required',
+      notConfiguredBody: 'A one-time setup by the app admin is needed to enable Google Drive sync.',
+      connectBtn: 'Sign in with Google',
       connecting: 'Authenticating…',
       syncing: 'Syncing…',
-      connected: 'Connected',
-      confirmDisconnect: (n) => `Disconnect ${n}?`,
+      connectedLabel: 'Connected',
       lastSync: 'Last sync',
       syncedLabel: 'Synced memos',
       syncedMemos: (n) => `${n}`,
-      format: 'Format',
       syncNow: 'Sync now',
+      disconnect: 'Disconnect',
+      confirmDisconnect: 'Disconnect Google Drive?',
+      errorLabel: 'Error',
     },
     pdf: {
       title: 'Export PDF',

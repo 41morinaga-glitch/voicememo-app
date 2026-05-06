@@ -23,14 +23,12 @@ import { findBestTag } from './lib/tagMatch';
 import { notifySaved, notifyStart } from './lib/feedback';
 import { useI18n } from './i18n/I18nContext';
 import {
-  loadCloud,
   loadCommands,
   loadMemos,
   loadSettings,
   loadTags,
   nowIso,
   purgeOldTrash,
-  saveCloud,
   saveCommands,
   saveMemos,
   saveSettings,
@@ -44,7 +42,6 @@ import type {
   View,
   VoiceCommands as VC,
 } from './types';
-import type { CloudState } from './storage';
 
 function App() {
   const stopRecordingRef = useRef<(() => void) | null>(null);
@@ -55,7 +52,6 @@ function App() {
   const voiceSearchRef = useRef<any>(null);
   const [settings, setSettings] = useState<SettingsType>(loadSettings());
   const [commands, setCommands] = useState<VC>(loadCommands());
-  const [cloud, setCloudState] = useState<CloudState>(loadCloud());
   const initialAutoRecord = useMemo(() => {
     if (typeof window === 'undefined') return false;
     const params = new URLSearchParams(window.location.search);
@@ -118,10 +114,6 @@ function App() {
     saveCommands(next);
   }, []);
 
-  const persistCloud = useCallback((next: CloudState) => {
-    setCloudState(next);
-    saveCloud(next);
-  }, []);
 
   const recomputeUsage = useCallback(
     (memoList: Memo[], tagList: Tag[]): Tag[] => {
@@ -457,8 +449,6 @@ function App() {
       case 'cloud':
         return (
           <Cloud
-            state={cloud}
-            onChange={persistCloud}
             syncedCount={syncedCount}
             onBack={() => setView({ name: 'home' })}
             drive={{
