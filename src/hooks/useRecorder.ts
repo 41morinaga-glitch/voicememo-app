@@ -89,15 +89,9 @@ export function useRecorder({ maxSec = 30, lang = 'ja-JP' }: Options = {}): Resu
   }, [cleanup]);
 
   const stop = useCallback(async () => {
-    if (status !== 'recording') return;
+    const mr = mediaRecorderRef.current;
+    if (!mr || mr.state !== 'recording') return;
     return new Promise<void>((resolve) => {
-      const mr = mediaRecorderRef.current;
-      if (!mr) {
-        cleanup();
-        setStatus('stopped');
-        resolve();
-        return;
-      }
       mr.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: mr.mimeType || 'audio/webm' });
         try {
@@ -118,7 +112,7 @@ export function useRecorder({ maxSec = 30, lang = 'ja-JP' }: Options = {}): Resu
         resolve();
       }
     });
-  }, [status, cleanup]);
+  }, [cleanup]);
 
   const start = useCallback(async () => {
     reset();
@@ -152,7 +146,8 @@ export function useRecorder({ maxSec = 30, lang = 'ja-JP' }: Options = {}): Resu
         rafRef.current = requestAnimationFrame(tick);
       }
 
-      const mr = new MediaRecorder(stream);
+      const mimeType = getSupportedMimeType();
+      const mr = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       mediaRecorderRef.current = mr;
       chunksRef.current = [];
       mr.ondataavailable = (e) => {
@@ -213,6 +208,21 @@ export function useRecorder({ maxSec = 30, lang = 'ja-JP' }: Options = {}): Resu
     stop,
     reset,
   };
+}
+
+function getSupportedMimeType(): string {
+  const types = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/mp4',
+  ];
+  for (const type of types) {
+    if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(type)) {
+      return type;
+    }
+  }
+  return '';
 }
 
 function blobToBase64(blob: Blob): Promise<string> {
