@@ -6,7 +6,7 @@ type Props = {
 
 export function PhoneFrame({ children }: Props) {
   return (
-    <div className="min-h-screen w-full bg-surface flex flex-col">
+    <div className="h-screen w-full bg-surface flex flex-col overflow-hidden">
       {children}
     </div>
   );
