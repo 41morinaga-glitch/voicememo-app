@@ -499,7 +499,38 @@ function App() {
               error: drive.error,
               connect: drive.connect,
               disconnect: drive.disconnect,
-              syncNow: () => drive.sync(memos, tags),
+              syncNow: async () => {
+                // Pull remote → merge → push (bidirectional)
+                const data = await driveRef.current.pull();
+                let mergedMemos = memos;
+                let mergedTags = tags;
+                if (data) {
+                  if (Array.isArray(data.memos) && data.memos.length > 0) {
+                    const remoteMemos = data.memos as Memo[];
+                    const map = new Map(memos.map((m) => [m.id, m]));
+                    for (const rm of remoteMemos) {
+                      const lm = map.get(rm.id);
+                      if (!lm || new Date(rm.updatedAt) > new Date(lm.updatedAt)) {
+                        map.set(rm.id, rm);
+                      }
+                    }
+                    mergedMemos = Array.from(map.values());
+                    setMemos(mergedMemos);
+                    saveMemos(mergedMemos);
+                  }
+                  if (Array.isArray(data.tags) && data.tags.length > 0) {
+                    const remoteTags = data.tags as Tag[];
+                    const localIds = new Set(tags.map((t) => t.id));
+                    const extra = remoteTags.filter((rt) => !localIds.has(rt.id));
+                    if (extra.length > 0) {
+                      mergedTags = [...tags, ...extra];
+                      setTags(mergedTags);
+                      saveTags(mergedTags);
+                    }
+                  }
+                }
+                await driveRef.current.sync(mergedMemos, mergedTags);
+              },
             }}
           />
         );
