@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGoogleDrive } from './hooks/useGoogleDrive';
 import { useTheme } from './hooks/useTheme';
 import { PhoneFrame } from './components/PhoneFrame';
+import { BottomNav } from './components/BottomNav';
 import { Home } from './components/screens/Home';
 import { Recording } from './components/screens/Recording';
 import { SaveConfirm } from './components/screens/SaveConfirm';
@@ -279,15 +280,9 @@ function App() {
           <Home
             tags={tags}
             memos={memos}
-            activeNav="home"
             onRecordTap={() => setView({ name: 'recording' })}
             onMenuTap={() => setMenuOpen(true)}
             onSearchTap={() => setView({ name: 'search' })}
-            onNavigate={(k) => {
-              if (k === 'tags') setView({ name: 'tags' });
-              else if (k === 'trash') setView({ name: 'trash' });
-              else setView({ name: 'home' });
-            }}
             onTagTap={(id) => setView({ name: 'tagDetail', tagId: id })}
           />
         );
@@ -339,12 +334,6 @@ function App() {
           <TagList
             tags={tags}
             memos={memos}
-            activeNav="tags"
-            onNavigate={(k) => {
-              if (k === 'home') setView({ name: 'home' });
-              else if (k === 'trash') setView({ name: 'trash' });
-              else setView({ name: 'tags' });
-            }}
             onTagTap={(id) => setView({ name: 'tagDetail', tagId: id })}
             onMerge={handleMergeTags}
           />
@@ -398,12 +387,6 @@ function App() {
             memos={memos}
             tags={tags}
             autoDeleteDays={settings.trashAutoDeleteDays}
-            activeNav="trash"
-            onNavigate={(k) => {
-              if (k === 'home') setView({ name: 'home' });
-              else if (k === 'tags') setView({ name: 'tags' });
-              else setView({ name: 'trash' });
-            }}
             onRestore={handleRestoreMemo}
             onPurgeAll={handlePurgeAllTrash}
           />
@@ -490,9 +473,27 @@ function App() {
     }
   };
 
+  const showBottomNav = view.name !== 'recording' && view.name !== 'save';
+  const activeNav =
+    view.name === 'tags' || view.name === 'tagDetail' || view.name === 'tagManage'
+      ? 'tags'
+      : view.name === 'trash'
+      ? 'trash'
+      : 'home';
+
   return (
     <PhoneFrame>
       {renderView()}
+      {showBottomNav && (
+        <BottomNav
+          active={activeNav}
+          onChange={(k) => {
+            if (k === 'tags') setView({ name: 'tags' });
+            else if (k === 'trash') setView({ name: 'trash' });
+            else setView({ name: 'home' });
+          }}
+        />
+      )}
       {menuOpen && (
         <Menu
           onClose={() => setMenuOpen(false)}

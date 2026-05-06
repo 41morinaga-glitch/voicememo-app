@@ -1,23 +1,18 @@
 import { useMemo } from 'react';
-import { BottomNav } from '../BottomNav';
 import { findSimilarGroups } from '../../lib/levenshtein';
 import { applyAutoReadings, useTagReadings } from '../../hooks/useTagReadings';
 import { useI18n } from '../../i18n/I18nContext';
 import { formatRelative } from './Home';
 import type { Memo, Tag } from '../../types';
 
-type NavKey = 'home' | 'tags' | 'trash';
-
 type Props = {
   tags: Tag[];
   memos: Memo[];
-  activeNav: NavKey;
-  onNavigate: (key: NavKey) => void;
   onTagTap: (tagId: string) => void;
   onMerge: (group: Tag[]) => void;
 };
 
-export function TagList({ tags, memos, activeNav, onNavigate, onTagTap, onMerge }: Props) {
+export function TagList({ tags, memos, onTagTap, onMerge }: Props) {
   const { t } = useI18n();
   const readings = useTagReadings(tags);
   const enriched = useMemo(() => applyAutoReadings(tags, readings), [tags, readings]);
@@ -112,7 +107,6 @@ export function TagList({ tags, memos, activeNav, onNavigate, onTagTap, onMerge 
         </div>
       </div>
 
-      <BottomNav active={activeNav} onChange={onNavigate} />
     </>
   );
 }

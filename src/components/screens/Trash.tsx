@@ -1,16 +1,11 @@
 import { useMemo } from 'react';
-import { BottomNav } from '../BottomNav';
 import { useI18n } from '../../i18n/I18nContext';
 import type { Memo, Tag } from '../../types';
-
-type NavKey = 'home' | 'tags' | 'trash';
 
 type Props = {
   memos: Memo[];
   tags: Tag[];
   autoDeleteDays: number;
-  activeNav: NavKey;
-  onNavigate: (key: NavKey) => void;
   onRestore: (id: string) => void;
   onPurgeAll: () => void;
 };
@@ -19,8 +14,6 @@ export function Trash({
   memos,
   tags,
   autoDeleteDays,
-  activeNav,
-  onNavigate,
   onRestore,
   onPurgeAll,
 }: Props) {
@@ -93,7 +86,6 @@ export function Trash({
         </div>
       )}
 
-      <BottomNav active={activeNav} onChange={onNavigate} />
     </>
   );
 }

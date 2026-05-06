@@ -1,30 +1,23 @@
 import { useMemo } from 'react';
 import { HamburgerIcon } from '../HamburgerIcon';
-import { BottomNav } from '../BottomNav';
 import { useI18n } from '../../i18n/I18nContext';
 import type { Memo, Tag } from '../../types';
-
-type NavKey = 'home' | 'tags' | 'trash';
 
 type Props = {
   tags: Tag[];
   memos: Memo[];
-  activeNav: NavKey;
   onRecordTap: () => void;
   onMenuTap: () => void;
   onSearchTap: () => void;
-  onNavigate: (key: NavKey) => void;
   onTagTap: (tagId: string) => void;
 };
 
 export function Home({
   tags,
   memos,
-  activeNav,
   onRecordTap,
   onMenuTap,
   onSearchTap,
-  onNavigate,
   onTagTap,
 }: Props) {
   const { t } = useI18n();
@@ -120,7 +113,6 @@ export function Home({
         </div>
       </div>
 
-      <BottomNav active={activeNav} onChange={onNavigate} />
     </>
   );
 }
