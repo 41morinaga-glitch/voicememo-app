@@ -119,16 +119,16 @@ export function TagManage({ tags, onChange, onDelete, onBack }: Props) {
                     <button
                       type="button"
                       onClick={() => setEditingId(null)}
-                      className="text-[9px] text-text3 px-2 py-1 border border-border rounded min-h-[28px]"
+                      className="text-[11px] text-text2 px-3 py-1.5 border border-border rounded min-h-[36px]"
                     >
-                      {t.voiceCommands.change}
+                      キャンセル
                     </button>
                     <button
                       type="button"
                       onClick={commitEdit}
-                      className="text-[9px] text-accent border border-accent/40 rounded px-2 py-1 min-h-[28px]"
+                      className="text-[11px] font-bold text-white bg-accent rounded px-4 py-1.5 min-h-[36px]"
                     >
-                      {t.voiceCommands.done}
+                      保存
                     </button>
                   </div>
                 </>
@@ -163,7 +163,7 @@ export function TagManage({ tags, onChange, onDelete, onBack }: Props) {
                     <button
                       type="button"
                       onClick={() => startEdit(tag)}
-                      className="text-[9px] text-text3 px-2 py-1 border border-border rounded min-h-[28px]"
+                      className="text-[11px] text-accent2 px-3 py-1 border border-accent/40 rounded min-h-[36px]"
                     >
                       {t.tagDetail.edit}
                     </button>
