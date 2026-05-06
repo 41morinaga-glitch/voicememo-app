@@ -69,6 +69,9 @@ function App() {
   const { t, locale } = useI18n();
   const syncDebounceRef = useRef<number | null>(null);
   const isLoadedRef = useRef(false);
+  const driveRef = useRef(drive);
+  driveRef.current = drive;
+  const hasPulledRef = useRef(false);
 
   useEffect(() => {
     const initialMemos = loadMemos();
@@ -82,17 +85,54 @@ function App() {
     }
   }, [settings.trashAutoDeleteDays, initialAutoRecord, settings.notifySound, settings.vibrate]);
 
+  // Pull from Drive once on connect, merging with local data (newer updatedAt wins)
+  useEffect(() => {
+    if (!drive.connected || hasPulledRef.current) return;
+    hasPulledRef.current = true;
+    driveRef.current.pull().then((data) => {
+      if (!data) return;
+      if (Array.isArray(data.memos) && data.memos.length > 0) {
+        const remoteMemos = data.memos as Memo[];
+        setMemos((local) => {
+          const merged = new Map(local.map((m) => [m.id, m]));
+          for (const rm of remoteMemos) {
+            const lm = merged.get(rm.id);
+            if (!lm || new Date(rm.updatedAt) > new Date(lm.updatedAt)) {
+              merged.set(rm.id, rm);
+            }
+          }
+          const next = Array.from(merged.values());
+          saveMemos(next);
+          return next;
+        });
+      }
+      if (Array.isArray(data.tags) && data.tags.length > 0) {
+        const remoteTags = data.tags as Tag[];
+        setTags((local) => {
+          const localIds = new Set(local.map((t) => t.id));
+          const merged = [...local];
+          for (const rt of remoteTags) {
+            if (!localIds.has(rt.id)) merged.push(rt);
+          }
+          saveTags(merged);
+          return merged;
+        });
+      }
+    }).catch(() => {});
+  }, [drive.connected]);
+
+  // Auto-sync on data change (debounced 2s); use ref to avoid re-triggering on status changes
   useEffect(() => {
     if (!isLoadedRef.current) return;
     if (!drive.connected) return;
     if (syncDebounceRef.current) window.clearTimeout(syncDebounceRef.current);
     syncDebounceRef.current = window.setTimeout(() => {
-      drive.sync(memos, tags).catch(() => {});
+      driveRef.current.sync(memos, tags).catch(() => {});
     }, 2000);
     return () => {
       if (syncDebounceRef.current) window.clearTimeout(syncDebounceRef.current);
     };
-  }, [memos, tags, drive]);
+  }, [memos, tags, drive.connected]);
 
   const persistMemos = useCallback((next: Memo[]) => {
     setMemos(next);
