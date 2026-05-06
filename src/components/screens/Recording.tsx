@@ -8,16 +8,22 @@ type Props = {
   maxSec: number;
   commands: VoiceCommands;
   autoSave?: boolean;
+  stopRef?: React.MutableRefObject<(() => void) | null>;
   onComplete: (draft: Draft) => void;
   onCancel: () => void;
 };
 
 const BAR_COUNT = 18;
 
-export function Recording({ maxSec, commands, autoSave, onComplete, onCancel }: Props) {
+export function Recording({ maxSec, commands, autoSave, stopRef, onComplete, onCancel }: Props) {
   const { t, locale } = useI18n();
   const recorder = useRecorder({ maxSec, lang: locale === 'en' ? 'en-US' : 'ja-JP' });
   const startedRef = useRef(false);
+
+  useEffect(() => {
+    if (stopRef) stopRef.current = () => recorder.stop();
+    return () => { if (stopRef) stopRef.current = null; };
+  }, [stopRef, recorder]);
 
   useEffect(() => {
     if (startedRef.current) return;
@@ -137,24 +143,8 @@ export function Recording({ maxSec, commands, autoSave, onComplete, onCancel }: 
         </div>
       )}
 
-      <div className="flex justify-center my-3 gap-3">
-        <button
-          type="button"
-          onClick={() => {
-            if (recorder.status === 'recording') recorder.stop();
-            else onCancel();
-          }}
-          aria-label={recorder.status === 'recording' ? t.recording.rec : t.save.back}
-          className="w-[60px] h-[60px] rounded-full bg-surface2 border-2 border-border flex items-center justify-center active:scale-95 transition-transform min-w-[44px] min-h-[44px]"
-        >
-          <span className="block w-[18px] h-[18px] bg-text1 rounded-sm" />
-        </button>
-      </div>
-
       <div className="text-[9px] text-text3 tracking-[1px] text-center pb-3">
-        {recorder.status === 'recording'
-          ? t.recording.saveTrigger(commands.save)
-          : t.recording.backHint}
+        {t.recording.saveTrigger(commands.save)}
       </div>
     </>
   );

@@ -6,7 +6,6 @@ import type { Memo, Tag } from '../../types';
 type Props = {
   tags: Tag[];
   memos: Memo[];
-  onRecordTap: () => void;
   onMenuTap: () => void;
   onSearchTap: () => void;
   onTagTap: (tagId: string) => void;
@@ -15,7 +14,6 @@ type Props = {
 export function Home({
   tags,
   memos,
-  onRecordTap,
   onMenuTap,
   onSearchTap,
   onTagTap,
@@ -62,24 +60,6 @@ export function Home({
         </div>
       </div>
 
-      <div className="flex flex-col items-center mt-4 px-5">
-        <div className="font-mono text-[10px] tracking-[2px] text-text3 mb-3">
-          {t.home.tapToRecord}
-        </div>
-        <button
-          type="button"
-          onClick={onRecordTap}
-          className="w-[92px] h-[92px] rounded-full bg-accent flex items-center justify-center shadow-recring active:scale-95 transition-transform"
-          aria-label={t.voiceCommands.rowStart}
-        >
-          <span className="block w-[28px] h-[28px] rounded-full bg-white" />
-        </button>
-        <div className="text-[9px] text-text3 tracking-[1px] mt-3 text-center">
-          {t.home.voiceHint}
-        </div>
-      </div>
-
-      <div className="h-px bg-border mx-5 mt-5" />
 
       <div className="px-5 pt-4 pb-2 flex-1 flex flex-col overflow-hidden">
         <div className="font-mono text-[9px] tracking-[2px] text-text3 uppercase mb-3">

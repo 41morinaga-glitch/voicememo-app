@@ -47,6 +47,7 @@ import type {
 import type { CloudState } from './storage';
 
 function App() {
+  const stopRecordingRef = useRef<(() => void) | null>(null);
   const [memos, setMemos] = useState<Memo[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [settings, setSettings] = useState<SettingsType>(loadSettings());
@@ -280,7 +281,6 @@ function App() {
           <Home
             tags={tags}
             memos={memos}
-            onRecordTap={() => setView({ name: 'recording' })}
             onMenuTap={() => setMenuOpen(true)}
             onSearchTap={() => setView({ name: 'search' })}
             onTagTap={(id) => setView({ name: 'tagDetail', tagId: id })}
@@ -292,6 +292,7 @@ function App() {
             maxSec={settings.maxRecordingSec}
             commands={commands}
             autoSave={autoRecordMode}
+            stopRef={stopRecordingRef}
             onComplete={(draft) => {
               if (draft.autoSave) {
                 handleAutoSave(draft);
@@ -484,6 +485,29 @@ function App() {
   return (
     <PhoneFrame>
       {renderView()}
+      {view.name !== 'save' && (
+        <div className="flex justify-center items-center py-3 flex-shrink-0">
+          {view.name === 'recording' ? (
+            <button
+              type="button"
+              onClick={() => stopRecordingRef.current?.()}
+              aria-label="停止"
+              className="w-[64px] h-[64px] rounded-full bg-accent flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+            >
+              <span className="block w-[22px] h-[22px] bg-white rounded-sm" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setView({ name: 'recording' })}
+              aria-label="録音"
+              className="w-[64px] h-[64px] rounded-full bg-accent flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+            >
+              <span className="block w-[24px] h-[24px] bg-white rounded-full" />
+            </button>
+          )}
+        </div>
+      )}
       {showBottomNav && (
         <BottomNav
           active={activeNav}
