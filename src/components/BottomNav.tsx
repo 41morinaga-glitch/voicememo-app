@@ -1,47 +1,40 @@
 import { useI18n } from '../i18n/I18nContext';
 
-type NavKey = 'home' | 'tags' | 'trash';
+type NavKey = 'home' | 'tags';
 
 type Props = {
   active: NavKey;
   onChange: (key: NavKey) => void;
+  recordButton: React.ReactNode;
 };
 
-export function BottomNav({ active, onChange }: Props) {
+export function BottomNav({ active, onChange, recordButton }: Props) {
   const { t } = useI18n();
-  const items: { key: NavKey; label: string; icon: string }[] = [
-    { key: 'home', label: t.nav.home, icon: '⌂' },
-    { key: 'tags', label: t.nav.tags, icon: '🏷' },
-    { key: 'trash', label: t.nav.trash, icon: '🗑' },
-  ];
+
+  const navBtn = (key: NavKey, icon: string, label: string) => {
+    const isActive = key === active;
+    return (
+      <button
+        key={key}
+        type="button"
+        onClick={() => onChange(key)}
+        className="flex flex-col items-center gap-1 px-6 py-1 flex-1"
+      >
+        <span className={`text-base leading-none ${isActive ? 'text-accent' : 'text-text3'}`}>
+          {icon}
+        </span>
+        <span className={`font-mono text-[16px] tracking-[1px] ${isActive ? 'text-accent' : 'text-text3'}`}>
+          {label}
+        </span>
+      </button>
+    );
+  };
+
   return (
-    <nav className="flex justify-around border-t border-border pt-2 pb-2 flex-shrink-0">
-      {items.map((it) => {
-        const isActive = it.key === active;
-        return (
-          <button
-            key={it.key}
-            type="button"
-            onClick={() => onChange(it.key)}
-            className="flex flex-col items-center gap-1 px-3 py-1"
-          >
-            <span
-              className={`text-base leading-none ${
-                isActive ? 'text-accent' : 'text-text3'
-              }`}
-            >
-              {it.icon}
-            </span>
-            <span
-              className={`font-mono text-[8px] tracking-[1px] ${
-                isActive ? 'text-accent' : 'text-text3'
-              }`}
-            >
-              {it.label}
-            </span>
-          </button>
-        );
-      })}
+    <nav className="flex items-center border-t border-border pt-2 pb-4 flex-shrink-0 min-h-[88px]">
+      <div className="flex-1 flex justify-center">{navBtn('home', '⌂', t.nav.home)}</div>
+      <div className="flex-1 flex justify-center">{navBtn('tags', '🏷', t.nav.tags)}</div>
+      <div className="flex-1 flex items-center justify-center">{recordButton}</div>
     </nav>
   );
 }

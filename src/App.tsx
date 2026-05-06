@@ -17,6 +17,7 @@ import { Cloud } from './components/screens/Cloud';
 import { PDFExport } from './components/screens/PDFExport';
 import { Search } from './components/screens/Search';
 import { TagManage } from './components/screens/TagManage';
+import { HamburgerIcon } from './components/HamburgerIcon';
 import { UsageGuide } from './components/UsageGuide';
 import { Toast } from './components/Toast';
 import { findBestTag } from './lib/tagMatch';
@@ -50,6 +51,9 @@ function App() {
   const stopRecordingRef = useRef<(() => void) | null>(null);
   const [memos, setMemos] = useState<Memo[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [voiceSearching, setVoiceSearching] = useState(false);
+  const voiceSearchRef = useRef<any>(null);
   const [settings, setSettings] = useState<SettingsType>(loadSettings());
   const [commands, setCommands] = useState<VC>(loadCommands());
   const [cloud, setCloudState] = useState<CloudState>(loadCloud());
@@ -67,7 +71,7 @@ function App() {
   const [toast, setToast] = useState<{ message: string; kind?: 'success' | 'info' | 'warn' } | null>(null);
   const drive = useGoogleDrive();
   const themeCtl = useTheme();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const syncDebounceRef = useRef<number | null>(null);
   const isLoadedRef = useRef(false);
 
@@ -282,7 +286,6 @@ function App() {
             tags={tags}
             memos={memos}
             onMenuTap={() => setMenuOpen(true)}
-            onSearchTap={() => setView({ name: 'search' })}
             onTagTap={(id) => setView({ name: 'tagDetail', tagId: id })}
           />
         );
@@ -430,7 +433,7 @@ function App() {
           <Search
             memos={memos}
             tags={tags}
-            onBack={() => setView({ name: 'home' })}
+            query={searchQuery}
             onOpenMemo={(id) => setView({ name: 'edit', memoId: id })}
           />
         );
@@ -474,48 +477,116 @@ function App() {
     }
   };
 
-  const showBottomNav = view.name !== 'recording' && view.name !== 'save';
   const activeNav =
     view.name === 'tags' || view.name === 'tagDetail' || view.name === 'tagManage'
       ? 'tags'
-      : view.name === 'trash'
-      ? 'trash'
       : 'home';
+
+  const startVoiceSearch = useCallback(() => {
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) return;
+    if (voiceSearchRef.current) {
+      voiceSearchRef.current.stop();
+      voiceSearchRef.current = null;
+      setVoiceSearching(false);
+      return;
+    }
+    const rec = new SR();
+    rec.lang = locale === 'en' ? 'en-US' : 'ja-JP';
+    rec.continuous = false;
+    rec.interimResults = true;
+    rec.onresult = (e: any) => {
+      let interim = '';
+      let final = '';
+      for (let i = 0; i < e.results.length; i++) {
+        if (e.results[i].isFinal) final += e.results[i][0].transcript;
+        else interim += e.results[i][0].transcript;
+      }
+      const text = (final || interim).trim();
+      if (text) {
+        setSearchQuery(text);
+        setView({ name: 'search' });
+      }
+    };
+    rec.onend = () => {
+      voiceSearchRef.current = null;
+      setVoiceSearching(false);
+    };
+    rec.onerror = () => {
+      voiceSearchRef.current = null;
+      setVoiceSearching(false);
+    };
+    rec.start();
+    voiceSearchRef.current = rec;
+    setVoiceSearching(true);
+  }, [locale]);
+
+  const recordButton = view.name === 'recording' ? (
+    <button
+      type="button"
+      onClick={() => stopRecordingRef.current?.()}
+      aria-label="停止"
+      className="w-[64px] h-[64px] rounded-full bg-accent flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+    >
+      <span className="block w-[22px] h-[22px] bg-white rounded-sm" />
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={() => setView({ name: 'recording' })}
+      aria-label="録音"
+      className="w-[64px] h-[64px] rounded-full bg-accent flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+    >
+      <span className="block w-[24px] h-[24px] bg-white rounded-full" />
+    </button>
+  );
 
   return (
     <PhoneFrame>
       {renderView()}
-      {view.name !== 'save' && (
-        <div className="flex justify-center items-center py-3 flex-shrink-0">
-          {view.name === 'recording' ? (
-            <button
-              type="button"
-              onClick={() => stopRecordingRef.current?.()}
-              aria-label="停止"
-              className="w-[64px] h-[64px] rounded-full bg-accent flex items-center justify-center shadow-lg active:scale-95 transition-transform"
-            >
-              <span className="block w-[22px] h-[22px] bg-white rounded-sm" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setView({ name: 'recording' })}
-              aria-label="録音"
-              className="w-[64px] h-[64px] rounded-full bg-accent flex items-center justify-center shadow-lg active:scale-95 transition-transform"
-            >
-              <span className="block w-[24px] h-[24px] bg-white rounded-full" />
-            </button>
-          )}
+      {view.name !== 'recording' && view.name !== 'save' && (
+        <div className="flex flex-col border-t border-border flex-shrink-0">
+          <div className="flex items-center gap-2 px-4 py-2">
+            <div className={`flex-1 flex items-center gap-2 px-3 h-[40px] bg-surface2 border rounded-full transition-colors ${voiceSearching ? 'border-accent' : 'border-border'}`}>
+              <span className="text-[14px] flex-shrink-0">🔍</span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  const q = e.target.value;
+                  setSearchQuery(q);
+                  if (q && view.name !== 'search') setView({ name: 'search' });
+                  if (!q && view.name === 'search') setView({ name: 'home' });
+                }}
+                placeholder={voiceSearching ? '聞いています…' : t.search.placeholder}
+                className="flex-1 bg-transparent text-[14px] text-text1 placeholder:text-text3 outline-none min-w-0"
+              />
+              {searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => { setSearchQuery(''); if (view.name === 'search') setView({ name: 'home' }); }}
+                  className="text-text3 text-[12px] flex-shrink-0"
+                >✕</button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={startVoiceSearch}
+                  aria-label="音声検索"
+                  className={`text-[16px] flex-shrink-0 transition-colors ${voiceSearching ? 'text-accent animate-pulse' : 'text-text3'}`}
+                >🎙</button>
+              )}
+            </div>
+          </div>
         </div>
       )}
-      {showBottomNav && (
+      {view.name !== 'save' && (
         <BottomNav
           active={activeNav}
           onChange={(k) => {
             if (k === 'tags') setView({ name: 'tags' });
-            else if (k === 'trash') setView({ name: 'trash' });
             else setView({ name: 'home' });
           }}
+          recordButton={recordButton}
         />
       )}
       {menuOpen && (
@@ -526,6 +597,7 @@ function App() {
             if (target === 'settings') setView({ name: 'settings' });
             else if (target === 'cloud') setView({ name: 'cloud' });
             else if (target === 'voiceCommands') setView({ name: 'voiceCommands' });
+            else if (target === 'trash') setView({ name: 'trash' });
             else setView({ name: 'tagManage' });
           }}
           theme={themeCtl.theme}

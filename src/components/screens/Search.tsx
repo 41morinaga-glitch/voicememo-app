@@ -1,17 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useI18n } from '../../i18n/I18nContext';
 import type { Memo, Tag } from '../../types';
 
 type Props = {
   memos: Memo[];
   tags: Tag[];
-  onBack: () => void;
+  query: string;
   onOpenMemo: (memoId: string) => void;
 };
 
-export function Search({ memos, tags, onBack, onOpenMemo }: Props) {
+export function Search({ memos, tags, query, onOpenMemo }: Props) {
   const { t } = useI18n();
-  const [query, setQuery] = useState('');
   const tagMap = useMemo(() => new Map(tags.map((tg) => [tg.id, tg])), [tags]);
 
   const results = useMemo(() => {
@@ -41,35 +40,7 @@ export function Search({ memos, tags, onBack, onOpenMemo }: Props) {
         <span>●●●</span>
       </div>
 
-      <div className="flex items-center gap-2 px-5 mt-2">
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label={t.save.back}
-          className="text-[12px] text-text3"
-        >
-          ←
-        </button>
-        <input
-          autoFocus
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t.search.placeholder}
-          className="flex-1 bg-surface2 border border-border rounded-lg px-3 py-2 text-[11px] text-text1 outline-none focus:border-accent"
-        />
-        {query && (
-          <button
-            type="button"
-            onClick={() => setQuery('')}
-            aria-label="clear"
-            className="text-[12px] text-text3 px-1"
-          >
-            ✕
-          </button>
-        )}
-      </div>
-
-      <div className="px-5 mt-2 font-mono text-[9px] text-text3">
+      <div className="px-5 mt-3 font-mono text-[9px] text-text3">
         {query.trim() ? t.search.hits(results.length) : t.search.typeHint}
       </div>
 

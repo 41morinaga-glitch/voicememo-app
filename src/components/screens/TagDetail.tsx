@@ -92,7 +92,7 @@ export function TagDetail({
             {m.title && (
               <div className="text-[11px] font-medium text-text1">{m.title}</div>
             )}
-            <div className="text-[10px] leading-[1.6] text-text1 whitespace-pre-wrap line-clamp-3">
+            <div className="text-[12px] leading-[1.6] text-text1 whitespace-pre-wrap line-clamp-3">
               {m.body}
             </div>
             <div className="flex gap-2 justify-end mt-1">
@@ -103,7 +103,7 @@ export function TagDetail({
                     speak.toggle([m.title, m.body].filter(Boolean).join('。'))
                   }
                   aria-label="読み上げ"
-                  className="text-[8px] text-text3 px-2 py-0.5 border border-border rounded min-h-[28px]"
+                  className="text-[14px] text-text3 px-4 py-2 border border-border rounded-lg min-h-[44px]"
                 >
                   🔊
                 </button>
@@ -111,7 +111,7 @@ export function TagDetail({
               <button
                 type="button"
                 onClick={() => onEditMemo(m.id)}
-                className="text-[8px] text-text3 px-2 py-0.5 border border-border rounded min-h-[28px]"
+                className="text-[14px] text-text3 px-4 py-2 border border-border rounded-lg min-h-[44px] font-medium"
               >
                 {t.tagDetail.edit}
               </button>
@@ -120,7 +120,7 @@ export function TagDetail({
                 onClick={() => {
                   if (confirm(t.tagDetail.confirmDelete)) onDeleteMemo(m.id);
                 }}
-                className="text-[8px] text-accent px-2 py-0.5 border border-accent/30 rounded min-h-[28px]"
+                className="text-[14px] text-accent px-4 py-2 border border-accent/30 rounded-lg min-h-[44px] font-medium"
               >
                 {t.tagDetail.delete}
               </button>

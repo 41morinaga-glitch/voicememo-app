@@ -9,7 +9,7 @@ type Props = {
   onBack: () => void;
 };
 
-const ACTION_WIDTH = 192;
+const ACTION_WIDTH = 220;
 
 export function TagManage({ tags, onChange, onDelete, onBack }: Props) {
   const { t } = useI18n();
@@ -157,7 +157,7 @@ export function TagManage({ tags, onChange, onDelete, onBack }: Props) {
                       <button
                         type="button"
                         onClick={() => startEdit(tag)}
-                        className="flex-1 flex items-center justify-center text-[12px] font-bold text-white bg-accent active:brightness-125"
+                        className="flex-1 flex items-center justify-center text-[16px] font-bold text-white bg-accent active:brightness-125"
                       >
                         編集
                       </button>
@@ -169,7 +169,7 @@ export function TagManage({ tags, onChange, onDelete, onBack }: Props) {
                             onDelete(tag.id);
                           }
                         }}
-                        className="flex-1 flex items-center justify-center text-[12px] font-bold text-white bg-[#cc2200] active:brightness-125"
+                        className="flex-1 flex items-center justify-center text-[16px] font-bold text-white bg-[#cc2200] active:brightness-125"
                       >
                         削除
                       </button>

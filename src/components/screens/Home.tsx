@@ -7,17 +7,10 @@ type Props = {
   tags: Tag[];
   memos: Memo[];
   onMenuTap: () => void;
-  onSearchTap: () => void;
   onTagTap: (tagId: string) => void;
 };
 
-export function Home({
-  tags,
-  memos,
-  onMenuTap,
-  onSearchTap,
-  onTagTap,
-}: Props) {
+export function Home({ tags, memos, onMenuTap, onTagTap }: Props) {
   const { t } = useI18n();
   const sorted = useMemo(() => {
     return [...tags].sort((a, b) => b.usageCount - a.usageCount);
@@ -47,17 +40,7 @@ export function Home({
 
       <div className="flex items-center justify-between px-5 mt-2">
         <h1 className="text-[15px] font-bold text-text1">{t.app.name}</h1>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={onSearchTap}
-            aria-label={t.search.title}
-            className="text-text2 text-[14px] p-1.5 min-h-[28px] min-w-[28px]"
-          >
-            🔍
-          </button>
-          <HamburgerIcon onClick={onMenuTap} />
-        </div>
+        <HamburgerIcon onClick={onMenuTap} />
       </div>
 
 
@@ -123,10 +106,6 @@ function TagCard({
       >
         {tag.name}
       </div>
-      <div
-        className="h-[2px] bg-accent rounded-sm"
-        style={{ width: `${Math.max(8, ratio * 100)}%` }}
-      />
       <div className="font-mono text-[8px] text-text3">
         {tag.usageCount} {t.home.memos}
         {lastLabel ? ` · ${t.home.last}: ${lastLabel}` : ''}
