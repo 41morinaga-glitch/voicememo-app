@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGoogleDrive } from './hooks/useGoogleDrive';
+import { useSwipeNav } from './hooks/useSwipeNav';
 import { useTheme } from './hooks/useTheme';
 import { PhoneFrame } from './components/PhoneFrame';
 import { BottomNav } from './components/BottomNav';
@@ -564,6 +565,11 @@ function App() {
       ? 'tags'
       : 'home';
 
+  const swipeNav = useSwipeNav(activeNav, (next) => {
+    if (next === 'tags') setView({ name: 'tags' });
+    else setView({ name: 'home' });
+  });
+
   const startVoiceSearch = useCallback(() => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) return;
@@ -623,9 +629,18 @@ function App() {
     </button>
   );
 
+  // Only attach swipe on top-level nav screens (not inside detail/edit screens)
+  const isSwipeable = view.name === 'home' || view.name === 'tags';
+
   return (
     <PhoneFrame>
-      {renderView()}
+      <div
+        className="flex-1 flex flex-col overflow-hidden min-h-0"
+        onTouchStart={isSwipeable ? swipeNav.onTouchStart : undefined}
+        onTouchEnd={isSwipeable ? swipeNav.onTouchEnd : undefined}
+      >
+        {renderView()}
+      </div>
       {view.name !== 'recording' && view.name !== 'save' && (
         <div className="flex flex-col border-t border-border flex-shrink-0">
           <div className="flex items-center gap-2 px-4 py-2">
