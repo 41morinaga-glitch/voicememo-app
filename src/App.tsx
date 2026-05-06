@@ -72,23 +72,14 @@ function App() {
   const driveRef = useRef(drive);
   driveRef.current = drive;
   const hasPulledRef = useRef(false);
+  const lastPullRef = useRef(0);
 
-  useEffect(() => {
-    const initialMemos = loadMemos();
-    const purged = purgeOldTrash(initialMemos, settings.trashAutoDeleteDays);
-    if (purged.length !== initialMemos.length) saveMemos(purged);
-    setMemos(purged);
-    setTags(loadTags());
-    isLoadedRef.current = true;
-    if (initialAutoRecord) {
-      notifyStart({ sound: settings.notifySound, vibrate: settings.vibrate });
-    }
-  }, [settings.trashAutoDeleteDays, initialAutoRecord, settings.notifySound, settings.vibrate]);
-
-  // Pull from Drive once on connect, merging with local data (newer updatedAt wins)
-  useEffect(() => {
-    if (!drive.connected || hasPulledRef.current) return;
-    hasPulledRef.current = true;
+  // Shared pull-and-merge logic
+  const pullAndMerge = useCallback(() => {
+    const now = Date.now();
+    const COOLDOWN = 30_000;
+    if (now - lastPullRef.current < COOLDOWN) return;
+    lastPullRef.current = now;
     driveRef.current.pull().then((data) => {
       if (!data) return;
       if (Array.isArray(data.memos) && data.memos.length > 0) {
@@ -119,7 +110,37 @@ function App() {
         });
       }
     }).catch(() => {});
-  }, [drive.connected]);
+  }, []);
+
+  useEffect(() => {
+    const initialMemos = loadMemos();
+    const purged = purgeOldTrash(initialMemos, settings.trashAutoDeleteDays);
+    if (purged.length !== initialMemos.length) saveMemos(purged);
+    setMemos(purged);
+    setTags(loadTags());
+    isLoadedRef.current = true;
+    if (initialAutoRecord) {
+      notifyStart({ sound: settings.notifySound, vibrate: settings.vibrate });
+    }
+  }, [settings.trashAutoDeleteDays, initialAutoRecord, settings.notifySound, settings.vibrate]);
+
+  // Pull on first connect
+  useEffect(() => {
+    if (!drive.connected || hasPulledRef.current) return;
+    hasPulledRef.current = true;
+    pullAndMerge();
+  }, [drive.connected, pullAndMerge]);
+
+  // Pull when tab becomes visible again (Page Visibility API)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && driveRef.current.connected) {
+        pullAndMerge();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [pullAndMerge]);
 
   // Auto-sync on data change (debounced 2s); use ref to avoid re-triggering on status changes
   useEffect(() => {
