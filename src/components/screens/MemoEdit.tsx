@@ -1,0 +1,196 @@
+import { useEffect, useRef, useState } from 'react';
+import { useSpeak } from '../../hooks/useSpeak';
+import { useI18n } from '../../i18n/I18nContext';
+import type { Memo, Tag } from '../../types';
+
+type Props = {
+  memo: Memo;
+  tag: Tag | null;
+  tags: Tag[];
+  onBack: () => void;
+  onSave: (patch: { title: string; body: string; tagId: string }) => void;
+  onDelete: () => void;
+  onAddRecord: () => void;
+};
+
+export function MemoEdit({ memo, tag, tags, onBack, onSave, onDelete, onAddRecord }: Props) {
+  const [title, setTitle] = useState(memo.title);
+  const [body, setBody] = useState(memo.body);
+  const [tagId, setTagId] = useState(memo.tagId);
+  const speak = useSpeak();
+  const { t } = useI18n();
+  const historyRef = useRef<{ title: string; body: string }[]>([
+    { title: memo.title, body: memo.body },
+  ]);
+  const futureRef = useRef<{ title: string; body: string }[]>([]);
+  const debounceRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => {
+      const last = historyRef.current[historyRef.current.length - 1];
+      if (last.title === title && last.body === body) return;
+      historyRef.current.push({ title, body });
+      futureRef.current = [];
+    }, 400);
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    };
+  }, [title, body]);
+
+  const undo = () => {
+    if (historyRef.current.length <= 1) return;
+    const current = historyRef.current.pop()!;
+    futureRef.current.push(current);
+    const prev = historyRef.current[historyRef.current.length - 1];
+    setTitle(prev.title);
+    setBody(prev.body);
+  };
+
+  const redo = () => {
+    const next = futureRef.current.pop();
+    if (!next) return;
+    historyRef.current.push(next);
+    setTitle(next.title);
+    setBody(next.body);
+  };
+
+  return (
+    <>
+      <div className="flex justify-between font-mono text-[9px] text-text3 px-5 pt-9">
+        <span>9:41</span>
+        <span>●●●</span>
+      </div>
+
+      <button
+        type="button"
+        onClick={onBack}
+        className="text-[10px] text-text3 px-5 mt-2 text-left"
+      >
+        ← {tag?.name ?? t.nav.tags}
+      </button>
+
+      <div className="px-5 mt-2 text-[12px] font-bold text-text1">
+        {formatDateTime(memo.createdAt)}
+      </div>
+
+      <div className="flex gap-1.5 px-5 mt-2 items-center">
+        <button
+          type="button"
+          onClick={undo}
+          disabled={historyRef.current.length <= 1}
+          className="bg-surface2 border border-border rounded px-2 py-1 text-[9px] text-text2 min-h-[28px] disabled:opacity-40"
+        >
+          {t.edit.undo}
+        </button>
+        <button
+          type="button"
+          onClick={redo}
+          disabled={futureRef.current.length === 0}
+          className="bg-surface2 border border-border rounded px-2 py-1 text-[9px] text-text2 min-h-[28px] disabled:opacity-40"
+        >
+          {t.edit.redo}
+        </button>
+        {speak.available && (
+          <button
+            type="button"
+            onClick={() => speak.toggle([title, body].filter(Boolean).join('。'))}
+            aria-label={speak.speaking ? t.edit.speakStop : t.edit.speak}
+            className={`bg-surface2 border rounded px-2 py-1 text-[9px] min-h-[28px] ${
+              speak.speaking
+                ? 'border-accent/40 text-accent'
+                : 'border-border text-text2'
+            }`}
+          >
+            {speak.speaking ? t.edit.speakStop : t.edit.speak}
+          </button>
+        )}
+        <div className="ml-auto" />
+        <button
+          type="button"
+          onClick={() => onSave({ title, body, tagId })}
+          className="border border-accent/30 rounded px-2 py-1 text-[9px] text-accent min-h-[28px]"
+        >
+          {t.edit.done}
+        </button>
+      </div>
+
+      <div className="px-5 mt-3">
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder={t.edit.titlePh}
+          className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-[12px] text-text1 outline-none focus:border-accent"
+        />
+      </div>
+
+      <div className="px-5 mt-2">
+        <div className="text-[9px] text-text3 tracking-[1px] mb-1">{t.edit.tagField}</div>
+        <div className="flex gap-1.5 flex-wrap">
+          {tags.map((tg) => {
+            const selected = tagId === tg.id;
+            return (
+              <button
+                key={tg.id}
+                type="button"
+                onClick={() => setTagId(tg.id)}
+                className={`rounded-full px-2.5 py-1 text-[9px] border transition-colors ${
+                  selected
+                    ? 'bg-accent/15 border-accent text-accent2'
+                    : 'bg-surface2 border-border text-text2'
+                }`}
+              >
+                {tg.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="px-5 mt-2 flex-1 overflow-hidden flex flex-col">
+        <textarea
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          placeholder={t.edit.bodyPh}
+          className="flex-1 bg-surface2 border border-accent rounded-xl p-3 text-[11px] leading-[1.8] text-text1 outline-none resize-none scroll-area"
+        />
+      </div>
+
+      <div className="px-5 pt-3 pb-3 flex flex-col gap-2 flex-shrink-0">
+        <button
+          type="button"
+          onClick={() => onSave({ title, body, tagId })}
+          className="bg-accent text-white rounded-[10px] py-3 text-[11px] font-bold tracking-[1px] min-h-[44px] active:scale-[0.99]"
+        >
+          {t.edit.save}
+        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onAddRecord}
+            className="flex-1 bg-surface2 text-text2 border border-border rounded-[10px] py-2.5 text-[10px] min-h-[44px]"
+          >
+            {t.edit.addRecord}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm(t.tagDetail.confirmDelete)) onDelete();
+            }}
+            className="flex-1 bg-surface2 text-accent border border-accent/30 rounded-[10px] py-2.5 text-[10px] min-h-[44px]"
+          >
+            {t.edit.delete}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  return `${pad(d.getMonth() + 1)}.${pad(d.getDate())} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function pad(n: number): string {
+  return n.toString().padStart(2, '0');
+}
