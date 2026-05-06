@@ -18,7 +18,6 @@ export function Home({ tags, memos, onMenuTap, onTagTap }: Props) {
 
   const top = sorted.slice(0, 2);
   const rest = sorted.slice(2);
-  const maxUsage = Math.max(1, ...sorted.map((t) => t.usageCount));
 
   const lastByTag = useMemo(() => {
     const map = new Map<string, number>();
@@ -54,7 +53,7 @@ export function Home({ tags, memos, onMenuTap, onTagTap }: Props) {
               key={tag.id}
               tag={tag}
               size="lg"
-              ratio={tag.usageCount / maxUsage}
+
               lastTs={lastByTag.get(tag.id)}
               onClick={() => onTagTap(tag.id)}
             />
@@ -66,7 +65,7 @@ export function Home({ tags, memos, onMenuTap, onTagTap }: Props) {
                   key={tag.id}
                   tag={tag}
                   size="sm"
-                  ratio={tag.usageCount / maxUsage}
+    
                   lastTs={lastByTag.get(tag.id)}
                   onClick={() => onTagTap(tag.id)}
                 />
@@ -83,13 +82,11 @@ export function Home({ tags, memos, onMenuTap, onTagTap }: Props) {
 function TagCard({
   tag,
   size,
-  ratio,
   lastTs,
   onClick,
 }: {
   tag: Tag;
   size: 'lg' | 'sm';
-  ratio: number;
   lastTs?: number;
   onClick: () => void;
 }) {

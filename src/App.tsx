@@ -17,7 +17,6 @@ import { Cloud } from './components/screens/Cloud';
 import { PDFExport } from './components/screens/PDFExport';
 import { Search } from './components/screens/Search';
 import { TagManage } from './components/screens/TagManage';
-import { HamburgerIcon } from './components/HamburgerIcon';
 import { UsageGuide } from './components/UsageGuide';
 import { Toast } from './components/Toast';
 import { findBestTag } from './lib/tagMatch';
