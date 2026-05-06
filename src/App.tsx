@@ -338,7 +338,8 @@ function App() {
             tags={tags}
             memos={memos}
             onMenuTap={() => setMenuOpen(true)}
-            onTagTap={(id) => setView({ name: 'tagDetail', tagId: id })}
+            onEditMemo={(id) => setView({ name: 'edit', memoId: id })}
+            onDeleteMemo={handleDeleteMemo}
           />
         );
       case 'recording':
