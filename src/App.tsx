@@ -566,6 +566,9 @@ function App() {
         className="flex-1 flex flex-col overflow-hidden min-h-0"
         onTouchStart={activeSwipe?.onTouchStart}
         onTouchEnd={activeSwipe?.onTouchEnd}
+        onMouseDown={activeSwipe?.onMouseDown}
+        onMouseUp={activeSwipe?.onMouseUp}
+        onMouseLeave={activeSwipe?.onMouseLeave}
       >
         {renderView()}
       </div>
