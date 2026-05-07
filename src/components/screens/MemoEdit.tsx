@@ -12,44 +12,38 @@ type Props = {
 };
 
 export function MemoEdit({ memo, onBack, onSave, onDelete, onAddRecord }: Props) {
-  const [title, setTitle] = useState(memo.title);
   const [body, setBody] = useState(memo.body);
   const speak = useSpeak();
   const { t } = useI18n();
-  const historyRef = useRef<{ title: string; body: string }[]>([
-    { title: memo.title, body: memo.body },
-  ]);
-  const futureRef = useRef<{ title: string; body: string }[]>([]);
+  const historyRef = useRef<string[]>([memo.body]);
+  const futureRef = useRef<string[]>([]);
   const debounceRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(() => {
       const last = historyRef.current[historyRef.current.length - 1];
-      if (last.title === title && last.body === body) return;
-      historyRef.current.push({ title, body });
+      if (last === body) return;
+      historyRef.current.push(body);
       futureRef.current = [];
     }, 400);
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, [title, body]);
+  }, [body]);
 
   const undo = () => {
     if (historyRef.current.length <= 1) return;
     const current = historyRef.current.pop()!;
     futureRef.current.push(current);
-    const prev = historyRef.current[historyRef.current.length - 1];
-    setTitle(prev.title);
-    setBody(prev.body);
+    setBody(historyRef.current[historyRef.current.length - 1]);
   };
 
   const redo = () => {
     const next = futureRef.current.pop();
     if (!next) return;
     historyRef.current.push(next);
-    setTitle(next.title);
-    setBody(next.body);
+    setBody(next);
   };
 
   return (
@@ -91,7 +85,7 @@ export function MemoEdit({ memo, onBack, onSave, onDelete, onAddRecord }: Props)
         {speak.available && (
           <button
             type="button"
-            onClick={() => speak.toggle([title, body].filter(Boolean).join('。'))}
+            onClick={() => speak.toggle(body)}
             aria-label={speak.speaking ? t.edit.speakStop : t.edit.speak}
             className={`bg-surface2 border rounded px-2 py-1 text-[9px] min-h-[28px] ${
               speak.speaking
@@ -105,20 +99,11 @@ export function MemoEdit({ memo, onBack, onSave, onDelete, onAddRecord }: Props)
         <div className="ml-auto" />
         <button
           type="button"
-          onClick={() => onSave({ title, body })}
+          onClick={() => onSave({ title: memo.title, body })}
           className="border border-accent/30 rounded px-2 py-1 text-[9px] text-accent min-h-[28px]"
         >
           {t.edit.done}
         </button>
-      </div>
-
-      <div className="px-5 mt-3">
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder={t.edit.titlePh}
-          className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-[12px] text-text1 outline-none focus:border-accent"
-        />
       </div>
 
       <div className="px-5 mt-2 flex-1 overflow-hidden flex flex-col">
@@ -133,7 +118,7 @@ export function MemoEdit({ memo, onBack, onSave, onDelete, onAddRecord }: Props)
       <div className="px-5 pt-3 pb-3 flex flex-col gap-2 flex-shrink-0">
         <button
           type="button"
-          onClick={() => onSave({ title, body })}
+          onClick={() => onSave({ title: memo.title, body })}
           className="bg-accent text-white rounded-[10px] py-3 text-[11px] font-bold tracking-[1px] min-h-[44px] active:scale-[0.99]"
         >
           {t.edit.save}

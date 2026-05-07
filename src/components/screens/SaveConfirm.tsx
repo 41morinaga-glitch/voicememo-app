@@ -11,12 +11,10 @@ type Props = {
 
 export function SaveConfirm({ draft, onSave, onRetake, onCancel }: Props) {
   const { t } = useI18n();
-  const [title, setTitle] = useState(draft.title);
   const [body, setBody] = useState(draft.body);
-  const [editingTitle, setEditingTitle] = useState(false);
 
   const handleSave = () => {
-    onSave({ title: title.trim() || t.app.untitled, body });
+    onSave({ title: '', body });
   };
 
   return (
@@ -40,36 +38,6 @@ export function SaveConfirm({ draft, onSave, onRetake, onCancel }: Props) {
       </div>
 
       <div className="flex-1 overflow-y-auto scroll-area px-5 mt-4 flex flex-col gap-4 pb-3">
-        <div>
-          <div className="text-[9px] text-text3 tracking-[1px] mb-1">
-            {t.save.titleField}
-          </div>
-          <div className="bg-surface2 border border-border rounded-lg px-3 py-2.5 flex items-center justify-between">
-            {editingTitle ? (
-              <input
-                autoFocus
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                onBlur={() => setEditingTitle(false)}
-                onKeyDown={(e) => e.key === 'Enter' && setEditingTitle(false)}
-                className="bg-transparent flex-1 text-[11px] text-text1 outline-none"
-              />
-            ) : (
-              <>
-                <span className="text-[11px] text-text1 truncate">{title || t.app.untitled}</span>
-                <button
-                  type="button"
-                  onClick={() => setEditingTitle(true)}
-                  className="text-text3 text-[12px] ml-2"
-                  aria-label={t.edit.titlePh}
-                >
-                  ✎
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-
         <div>
           <div className="text-[9px] text-text3 tracking-[1px] mb-1">{t.save.transcript}</div>
           <textarea

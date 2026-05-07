@@ -48,12 +48,9 @@ export function MemoList({ memos, onOpenMemo, onMenuTap }: Props) {
             onClick={() => onOpenMemo(memo.id)}
             className="bg-surface2 border border-border rounded-[10px] px-3 py-2.5 flex flex-col gap-0.5 text-left min-h-[52px] active:bg-border/30"
           >
-            <div className="text-[12px] text-text1 truncate">{memo.title}</div>
-            {memo.body ? (
-              <div className="text-[9px] text-text3 truncate">
-                {memo.body.split('\n')[0]}
-              </div>
-            ) : null}
+            <div className="text-[11px] text-text1 line-clamp-2 leading-relaxed">
+              {memo.body || '（本文なし）'}
+            </div>
             <div className="font-mono text-[8px] text-text3 mt-0.5">
               {formatDate(memo.updatedAt)}
             </div>
