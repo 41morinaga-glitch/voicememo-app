@@ -578,33 +578,38 @@ function App() {
       {view.name !== 'recording' && view.name !== 'save' && (
         <div className="flex flex-col border-t border-border flex-shrink-0">
           <div className="flex items-center gap-2 px-4 py-2">
-            <div className={`flex-1 flex items-center gap-2 px-3 h-[40px] bg-surface2 border rounded-full transition-colors ${voiceSearching ? 'border-accent' : 'border-border'}`}>
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={startVoiceSearch}
+              onKeyDown={(e) => e.key === 'Enter' && startVoiceSearch()}
+              className={`flex-1 flex items-center gap-2 px-3 h-[40px] border rounded-full transition-colors cursor-pointer select-none ${voiceSearching ? 'bg-accent/10 border-accent' : 'bg-surface2 border-border'}`}
+            >
               <span className="text-[14px] flex-shrink-0">🔍</span>
               <input
                 type="text"
                 value={searchQuery}
+                readOnly={voiceSearching}
                 onChange={(e) => {
                   const q = e.target.value;
                   setSearchQuery(q);
                   if (q && view.name !== 'search') setView({ name: 'search' });
-                  if (!q && view.name === 'search') setView({ name: 'tags' });
+                  if (!q && view.name === 'search') setView({ name: 'memoList' });
                 }}
+                onClick={(e) => e.stopPropagation()}
                 placeholder={voiceSearching ? '聞いています…' : t.search.placeholder}
-                className="flex-1 bg-transparent text-[14px] text-text1 placeholder:text-text3 outline-none min-w-0"
+                className={`flex-1 bg-transparent text-[14px] outline-none min-w-0 pointer-events-auto ${voiceSearching ? 'text-accent placeholder:text-accent/60' : 'text-text1 placeholder:text-text3'}`}
               />
-              {searchQuery ? (
+              {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => { setSearchQuery(''); if (view.name === 'search') setView({ name: 'tags' }); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSearchQuery('');
+                    if (view.name === 'search') setView({ name: 'memoList' });
+                  }}
                   className="text-text3 text-[12px] flex-shrink-0"
                 >✕</button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={startVoiceSearch}
-                  aria-label="音声検索"
-                  className={`text-[16px] flex-shrink-0 transition-colors ${voiceSearching ? 'text-accent animate-pulse' : 'text-text3'}`}
-                >🎙</button>
               )}
             </div>
           </div>
