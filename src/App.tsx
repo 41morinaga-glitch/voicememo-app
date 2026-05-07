@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useGoogleDrive } from './hooks/useGoogleDrive';
-import { useSwipeNav } from './hooks/useSwipeNav';
+import { useSwipeGesture } from './hooks/useSwipeGesture';
 import { useTheme } from './hooks/useTheme';
 import { PhoneFrame } from './components/PhoneFrame';
 import { BottomNav } from './components/BottomNav';
@@ -301,6 +301,14 @@ function App() {
     [memos],
   );
 
+  const sortedActiveMemos = useMemo(
+    () =>
+      memos
+        .filter((m) => !m.deletedAt)
+        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()),
+    [memos],
+  );
+
   const renderView = () => {
     switch (view.name) {
       case 'memoList':
@@ -466,13 +474,27 @@ function App() {
     }
   };
 
-  const swipeActiveNav: 'memoList' | 'recording' =
-    view.name === 'recording' ? 'recording' : 'memoList';
+  // memoList: swipe left → open most recent memo
+  const memoListSwipe = useSwipeGesture(
+    () => {
+      const first = sortedActiveMemos[0];
+      if (first) setView({ name: 'edit', memoId: first.id });
+    },
+    undefined,
+  );
 
-  const swipeNav = useSwipeNav(swipeActiveNav, (next) => {
-    if (next === 'recording') setView({ name: 'recording' });
-    else setView({ name: 'memoList' });
-  });
+  // edit: swipe right → back to list, swipe left → adjacent memo
+  const editSwipe = useSwipeGesture(
+    () => {
+      if (view.name !== 'edit') return;
+      const idx = sortedActiveMemos.findIndex((m) => m.id === view.memoId);
+      const next = sortedActiveMemos[idx + 1];
+      if (next) setView({ name: 'edit', memoId: next.id });
+    },
+    () => {
+      if (view.name === 'edit') setView({ name: 'memoList' });
+    },
+  );
 
   const startVoiceSearch = useCallback(() => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -533,15 +555,17 @@ function App() {
     </button>
   );
 
-  // Only attach swipe on top-level nav screens (not inside detail/edit screens)
-  const isSwipeable = view.name === 'memoList' || view.name === 'recording';
+  const activeSwipe =
+    view.name === 'memoList' ? memoListSwipe :
+    view.name === 'edit' ? editSwipe :
+    null;
 
   return (
     <PhoneFrame>
       <div
         className="flex-1 flex flex-col overflow-hidden min-h-0"
-        onTouchStart={isSwipeable ? swipeNav.onTouchStart : undefined}
-        onTouchEnd={isSwipeable ? swipeNav.onTouchEnd : undefined}
+        onTouchStart={activeSwipe?.onTouchStart}
+        onTouchEnd={activeSwipe?.onTouchEnd}
       >
         {renderView()}
       </div>
