@@ -354,14 +354,18 @@ function App() {
                     title: existing.title,
                     body: existing.body ? existing.body + '\n\n' + input.body : input.body,
                   });
-                  setView({ name: 'memoList' });
+                  setView({ name: 'edit', memoId: appendId });
                   return;
                 }
               }
               handleSaveMemo(input);
             }}
             onRetake={() => setView({ name: 'recording', appendToMemoId: view.appendToMemoId, pendingBody: view.draft.body })}
-            onCancel={() => setView({ name: 'memoList' })}
+            onCancel={() =>
+              view.appendToMemoId
+                ? setView({ name: 'edit', memoId: view.appendToMemoId })
+                : setView({ name: 'memoList' })
+            }
           />
         );
       case 'edit': {
@@ -542,7 +546,11 @@ function App() {
   ) : (
     <button
       type="button"
-      onClick={() => setView({ name: 'recording' })}
+      onClick={() =>
+        view.name === 'edit'
+          ? setView({ name: 'recording', appendToMemoId: view.memoId })
+          : setView({ name: 'recording' })
+      }
       aria-label="録音"
       className="w-[64px] h-[64px] rounded-full bg-accent flex items-center justify-center shadow-lg active:scale-95 transition-transform"
     >
