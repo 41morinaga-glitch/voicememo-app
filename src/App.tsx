@@ -578,40 +578,27 @@ function App() {
       {view.name !== 'recording' && view.name !== 'save' && (
         <div className="flex flex-col border-t border-border flex-shrink-0">
           <div className="flex items-center gap-2 px-4 py-2">
-            <div
-              role="button"
-              tabIndex={0}
+            <button
+              type="button"
               onClick={startVoiceSearch}
-              onKeyDown={(e) => e.key === 'Enter' && startVoiceSearch()}
-              className={`flex-1 flex items-center gap-2 px-3 h-[40px] border rounded-full transition-colors cursor-pointer select-none ${voiceSearching ? 'bg-accent/10 border-accent' : 'bg-surface2 border-border'}`}
+              className={`flex-1 flex items-center gap-2 px-3 h-[40px] border rounded-full transition-colors ${voiceSearching ? 'bg-accent/10 border-accent' : 'bg-surface2 border-border'}`}
             >
               <span className="text-[14px] flex-shrink-0">🔍</span>
-              <input
-                type="text"
-                value={searchQuery}
-                readOnly={voiceSearching}
-                onChange={(e) => {
-                  const q = e.target.value;
-                  setSearchQuery(q);
-                  if (q && view.name !== 'search') setView({ name: 'search' });
-                  if (!q && view.name === 'search') setView({ name: 'memoList' });
-                }}
-                onClick={(e) => e.stopPropagation()}
-                placeholder={voiceSearching ? '聞いています…' : t.search.placeholder}
-                className={`flex-1 bg-transparent text-[14px] outline-none min-w-0 pointer-events-auto ${voiceSearching ? 'text-accent placeholder:text-accent/60' : 'text-text1 placeholder:text-text3'}`}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
+              <span className={`flex-1 text-left text-[14px] truncate ${voiceSearching ? 'text-accent' : searchQuery ? 'text-text1' : 'text-text3'}`}>
+                {voiceSearching ? '聞いています…' : searchQuery || t.search.placeholder}
+              </span>
+              {searchQuery && !voiceSearching && (
+                <span
+                  role="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSearchQuery('');
                     if (view.name === 'search') setView({ name: 'memoList' });
                   }}
-                  className="text-text3 text-[12px] flex-shrink-0"
-                >✕</button>
+                  className="text-text3 text-[12px] flex-shrink-0 px-1"
+                >✕</span>
               )}
-            </div>
+            </button>
           </div>
         </div>
       )}
