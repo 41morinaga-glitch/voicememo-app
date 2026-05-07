@@ -542,7 +542,7 @@ function App() {
       >
         {renderView()}
       </div>
-      {view.name !== 'recording' && view.name !== 'save' && (
+      {(view.name === 'memoList' || view.name === 'search') && (
         <div className="flex flex-col border-t border-border flex-shrink-0">
           <div className="flex items-center gap-2 px-4 py-2">
             <button
