@@ -38,7 +38,7 @@ export function Recording({ maxSec, commands, autoSave, stopRef, onComplete, onC
   useEffect(() => {
     if (recorder.status === 'stopped') {
       onComplete({
-        title: parsed.title || autoTitle(parsed.body),
+        title: '',
         body: parsed.body,
         durationSec: recorder.elapsedSec,
         tagPhrase: parsed.tagPhrase || undefined,
@@ -101,11 +101,6 @@ export function Recording({ maxSec, commands, autoSave, stopRef, onComplete, onC
         ))}
       </div>
 
-      {parsed.title && (
-        <div className="mx-5 bg-accent/10 border border-accent/30 rounded-lg px-3 py-1.5 text-[9px] text-accent">
-          {t.recording.titleSet(parsed.title)}
-        </div>
-      )}
       {parsed.tagPhrase && (
         <div className="mx-5 bg-info/10 border border-info/30 rounded-lg px-3 py-1.5 text-[9px] text-info">
           🏷 {parsed.tagPhrase}
@@ -115,19 +110,8 @@ export function Recording({ maxSec, commands, autoSave, stopRef, onComplete, onC
       <div className="mx-5 mt-2 flex-1 bg-surface2 border border-border rounded-xl p-3 overflow-hidden flex flex-col">
         <AutoScroll>
           <div className="text-[11px] leading-[1.75] text-text1">
-            {parsed.title && (
-              <div className="mb-2">
-                <span className="text-text3 text-[9px]">{t.recording.titleLabel}</span>
-                {parsed.title}
-              </div>
-            )}
             {parsed.body || (
-              <span className="text-text3">
-                {t.recording.speakStart}{' '}
-                <span className="text-[9px]">
-                  {t.recording.titleTrigger(commands.setTitle)}
-                </span>
-              </span>
+              <span className="text-text3">{t.recording.speakStart}</span>
             )}
             {recorder.status === 'recording' && (
               <span className="inline-block w-[2px] h-3 bg-accent ml-1 align-middle animate-pulse" />
@@ -186,9 +170,4 @@ function formatTime(sec: number): string {
 }
 function pad(n: number): string {
   return n.toString().padStart(2, '0');
-}
-function autoTitle(body: string): string {
-  if (!body) return '無題のメモ';
-  const first = body.split(/[。.！!？?\n]/)[0].trim();
-  return first ? first.slice(0, 20) : '無題のメモ';
 }

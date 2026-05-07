@@ -53,9 +53,6 @@ export function Search({ memos, tags, query, onOpenMemo }: Props) {
             className="bg-surface2 border border-border rounded-[10px] px-3 py-2.5 flex flex-col gap-1 text-left active:bg-border/40 min-h-[44px]"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-medium text-text1 truncate">
-                {memo.title || t.app.untitled}
-              </span>
               <span className="font-mono text-[8px] text-text3 flex-shrink-0">
                 {formatDate(memo.createdAt)}
               </span>

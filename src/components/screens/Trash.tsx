@@ -53,8 +53,7 @@ export function Trash({
             >
               <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                 <div className="text-[10px] text-text1 truncate">
-                  {tag ? `${tag.name} · ` : ''}
-                  {m.title || t.app.untitled}
+                  {m.body || '（本文なし）'}
                 </div>
                 <div className="font-mono text-[8px] text-text3">
                   {t.trash.deleted}: {formatShortDate(m.deletedAt!)} · {t.trash.daysLeft(remaining)}

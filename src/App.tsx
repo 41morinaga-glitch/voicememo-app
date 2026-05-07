@@ -211,16 +211,13 @@ function App() {
 
   const handleAutoSave = useCallback(
     (draft: { title: string; body: string; tagPhrase?: string }) => {
-      if (!draft.body && !draft.title) {
+      if (!draft.body) {
         setView({ name: 'memoList' });
         setAutoRecordMode(false);
         return;
       }
       handleSaveMemo(
-        {
-          title: draft.title.trim() || draft.body.split(/[。.！!？?\n]/)[0]?.slice(0, 20) || t.app.untitled,
-          body: draft.body,
-        },
+        { title: '', body: draft.body },
         {
           afterSave: () => {
             setToast({ message: t.toast.saved, kind: 'success' });
