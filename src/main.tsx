@@ -5,9 +5,11 @@ import App from './App.tsx'
 import { I18nProvider } from './i18n/I18nContext'
 
 const setAppHeight = () => {
-  document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+  const h = window.visualViewport?.height ?? window.innerHeight;
+  document.documentElement.style.setProperty('--app-height', `${h}px`);
 };
 setAppHeight();
+window.visualViewport?.addEventListener('resize', setAppHeight);
 window.addEventListener('resize', setAppHeight);
 
 createRoot(document.getElementById('root')!).render(
