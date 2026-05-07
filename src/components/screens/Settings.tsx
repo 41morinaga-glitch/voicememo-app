@@ -12,7 +12,6 @@ type Props = {
 
 const REC_TIMES = [15, 30, 60, 120];
 const PURGE_DAYS = [7, 14, 30, 60];
-const PDF_FONTS = ['Noto Sans JP', 'M PLUS Rounded 1c', 'Sans Serif'];
 
 export function Settings({ settings, onChange, onBack, theme, onToggleTheme }: Props) {
   const { t, locale, setLocale } = useI18n();
@@ -107,11 +106,6 @@ export function Settings({ settings, onChange, onBack, theme, onToggleTheme }: P
               trashAutoDeleteDays: cycle(settings.trashAutoDeleteDays, PURGE_DAYS),
             })
           }
-        />
-        <Row
-          name={t.settings.pdfFont}
-          value={settings.pdfFont}
-          onTap={() => onChange({ ...settings, pdfFont: cycle(settings.pdfFont, PDF_FONTS) })}
         />
       </div>
     </>

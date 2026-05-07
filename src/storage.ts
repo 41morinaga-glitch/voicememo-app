@@ -5,7 +5,6 @@ const KEY_MEMOS = 'voicememo:memos';
 const KEY_TAGS = 'voicememo:tags';
 const KEY_CMDS = 'voicememo:commands';
 const KEY_SETTINGS = 'voicememo:settings';
-const KEY_CLOUD = 'voicememo:cloud';
 
 export function loadMemos(): Memo[] {
   try {
@@ -67,31 +66,6 @@ export function saveSettings(settings: Settings): void {
   localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings));
 }
 
-export type CloudState = {
-  googleDrive: { connected: boolean; lastSyncIso?: string };
-  iCloud: { connected: boolean; lastSyncIso?: string };
-  dropbox: { connected: boolean; lastSyncIso?: string };
-};
-
-const DEFAULT_CLOUD: CloudState = {
-  googleDrive: { connected: false },
-  iCloud: { connected: false },
-  dropbox: { connected: false },
-};
-
-export function loadCloud(): CloudState {
-  try {
-    const raw = localStorage.getItem(KEY_CLOUD);
-    if (!raw) return DEFAULT_CLOUD;
-    return { ...DEFAULT_CLOUD, ...JSON.parse(raw) };
-  } catch {
-    return DEFAULT_CLOUD;
-  }
-}
-
-export function saveCloud(state: CloudState): void {
-  localStorage.setItem(KEY_CLOUD, JSON.stringify(state));
-}
 
 export function purgeOldTrash(memos: Memo[], days: number): Memo[] {
   const cutoff = Date.now() - days * 86400000;

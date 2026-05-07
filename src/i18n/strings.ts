@@ -6,21 +6,7 @@ type Dict = {
     untitled: string;
   };
   nav: {
-    home: string;
-    tags: string;
     trash: string;
-  };
-  home: {
-    tapToRecord: string;
-    voiceHint: string;
-    frequentTags: string;
-    memos: string;
-    last: string;
-    today: string;
-    yesterday: string;
-    daysAgo: (n: number) => string;
-    weeksAgo: (n: number) => string;
-    monthsAgo: (n: number) => string;
   };
   recording: {
     rec: string;
@@ -48,23 +34,6 @@ type Dict = {
     newTag: string;
     tagName: string;
     tagReading: string;
-  };
-  tagList: {
-    title: string;
-    countSuffix: string;
-    similarFound: string;
-    mergeBtn: string;
-    empty: string;
-  };
-  tagDetail: {
-    backToTagList: string;
-    chars: string;
-    pdf: string;
-    addRecord: string;
-    edit: string;
-    delete: string;
-    confirmDelete: string;
-    empty: string;
   };
   edit: {
     undo: string;
@@ -95,8 +64,6 @@ type Dict = {
     cloud: string;
     language: string;
     notify: string;
-    tagManage: string;
-    pdf: string;
     theme: (current: string) => string;
     guide: string;
     version: string;
@@ -114,7 +81,6 @@ type Dict = {
     vibrate: string;
     theme: string;
     trashDays: string;
-    pdfFont: string;
     on: string;
     off: string;
     dark: string;
@@ -153,25 +119,6 @@ type Dict = {
     confirmDisconnect: string;
     errorLabel: string;
   };
-  pdf: {
-    title: string;
-    preview: string;
-    formatLabel: string;
-    formatStyled: string;
-    formatStyledSub: string;
-    formatPlain: string;
-    formatPlainSub: string;
-    outputLabel: string;
-    outputSearchable: string;
-    outputSearchableSub: string;
-    outputImage: string;
-    outputImageSub: string;
-    generate: string;
-    generating: string;
-    openPrint: string;
-    empty: string;
-    statsTpl: (n: number, chars: number, date: string) => string;
-  };
   search: {
     title: string;
     placeholder: string;
@@ -179,14 +126,6 @@ type Dict = {
     hits: (n: number) => string;
     initialHelp: string;
     noResults: string;
-  };
-  tagManage: {
-    title: string;
-    backToMenu: string;
-    addTag: string;
-    deleteConfirm: (name: string) => string;
-    moveBefore: string;
-    moveAfter: string;
   };
   guide: {
     title: string;
@@ -204,19 +143,7 @@ type Dict = {
 export const STRINGS: Record<Locale, Dict> = {
   ja: {
     app: { name: 'VoiceMemo', untitled: '無題のメモ' },
-    nav: { home: 'ホーム', tags: 'タグ', trash: 'ゴミ箱' },
-    home: {
-      tapToRecord: 'TAP TO RECORD',
-      voiceHint: '「録音開始」と言っても始まります',
-      frequentTags: 'よく使うタグ',
-      memos: 'MEMOS',
-      last: '最終',
-      today: '今日',
-      yesterday: '昨日',
-      daysAgo: (n) => `${n}日前`,
-      weeksAgo: (n) => `${n}週前`,
-      monthsAgo: (n) => `${n}ヶ月前`,
-    },
+    nav: { trash: 'ゴミ箱' },
     recording: {
       rec: 'REC',
       secondsLeft: 'SECONDS LEFT',
@@ -242,24 +169,7 @@ export const STRINGS: Record<Locale, Dict> = {
       back: '← 戻る',
       newTag: '+ 新しいタグ',
       tagName: 'タグ名',
-      tagReading: '読み（ひらがな・任意。類似タグ統合用）',
-    },
-    tagList: {
-      title: 'タグ一覧',
-      countSuffix: 'タグ',
-      similarFound: '⚠ 似ているタグを検出',
-      mergeBtn: '統合する →',
-      empty: 'タグがまだありません',
-    },
-    tagDetail: {
-      backToTagList: '← タグ一覧',
-      chars: '文字',
-      pdf: 'PDF出力',
-      addRecord: '+ 追加録音',
-      edit: '編集',
-      delete: '削除',
-      confirmDelete: 'このメモをゴミ箱へ移動しますか？',
-      empty: 'このタグのメモはまだありません',
+      tagReading: '読み（ひらがな・任意）',
     },
     edit: {
       undo: '元に戻す',
@@ -290,8 +200,6 @@ export const STRINGS: Record<Locale, Dict> = {
       cloud: '保存先・クラウド同期',
       language: '文字起こし言語',
       notify: '通知・フィードバック',
-      tagManage: 'タグ管理',
-      pdf: 'PDF設定',
       theme: (cur) => `テーマ（${cur}）`,
       guide: '使い方ガイド',
       version: 'バージョン 1.0.0',
@@ -309,7 +217,6 @@ export const STRINGS: Record<Locale, Dict> = {
       vibrate: 'バイブレーション',
       theme: 'テーマ',
       trashDays: 'ゴミ箱 自動削除',
-      pdfFont: 'PDFフォント',
       on: 'ON',
       off: 'OFF',
       dark: 'ダーク',
@@ -348,41 +255,13 @@ export const STRINGS: Record<Locale, Dict> = {
       confirmDisconnect: 'Googleドライブの接続を解除しますか？',
       errorLabel: 'エラー',
     },
-    pdf: {
-      title: 'PDF出力',
-      preview: 'PREVIEW',
-      formatLabel: '出力形式',
-      formatStyled: '整形PDFで出力',
-      formatStyledSub: 'タグ名・日付・テキスト整形',
-      formatPlain: 'シンプルテキスト',
-      formatPlainSub: '最小限の装飾',
-      outputLabel: '出力種別',
-      outputSearchable: '検索可能PDF（推奨）',
-      outputSearchableSub: '印刷ダイアログ → PDFとして保存',
-      outputImage: '画像PDF',
-      outputImageSub: 'ファイル直接ダウンロード（検索不可）',
-      generate: 'PDFを生成 → 保存',
-      generating: '生成中…',
-      openPrint: '印刷ダイアログを開く',
-      empty: 'メモがありません',
-      statsTpl: (n, chars, date) => `${n} memos · ${chars} chars · ${date}`,
-    },
     search: {
       title: '検索',
       placeholder: 'メモ・タグ・本文を検索',
       typeHint: 'キーワードを入力',
       hits: (n) => `${n} 件ヒット`,
-      initialHelp: 'タイトル・本文・タグ名・読みから検索できます',
+      initialHelp: 'タイトル・本文・タグ名から検索できます',
       noResults: '一致するメモはありません',
-    },
-    tagManage: {
-      title: 'タグ管理',
-      backToMenu: '← メニュー',
-      addTag: '+ タグを追加',
-      deleteConfirm: (name) =>
-        `「${name}」を削除しますか？このタグのメモは未分類になります。`,
-      moveBefore: '↑',
-      moveAfter: '↓',
     },
     guide: {
       title: '📖 使い方ガイド',
@@ -409,16 +288,6 @@ export const STRINGS: Record<Locale, Dict> = {
           title: '🏷 タグ',
           items: [
             '保存時にタグを選ぶ／新規作成',
-            '読み（ひらがな）を入れると類似タグ統合に役立つ',
-            'タグ一覧で似たタグを自動検出 → ワンタップ統合',
-          ],
-        },
-        {
-          title: '📄 PDF出力',
-          items: [
-            'タグ詳細 → 「PDF出力」',
-            '検索可能PDF: 印刷ダイアログ → PDFとして保存',
-            '画像PDF: ファイル直接ダウンロード',
           ],
         },
         {
@@ -432,7 +301,7 @@ export const STRINGS: Record<Locale, Dict> = {
         {
           title: '🔊 読み上げ',
           items: [
-            'メモ詳細／編集画面の 🔊 ボタンで読み上げ',
+            '編集画面の 🔊 ボタンで読み上げ',
             '読み上げ中にもう一度タップで停止',
           ],
         },
@@ -469,19 +338,7 @@ export const STRINGS: Record<Locale, Dict> = {
   },
   en: {
     app: { name: 'VoiceMemo', untitled: 'Untitled' },
-    nav: { home: 'Home', tags: 'Tags', trash: 'Trash' },
-    home: {
-      tapToRecord: 'TAP TO RECORD',
-      voiceHint: 'Or say the start command',
-      frequentTags: 'FREQUENT TAGS',
-      memos: 'MEMOS',
-      last: 'last',
-      today: 'today',
-      yesterday: 'yesterday',
-      daysAgo: (n) => `${n}d ago`,
-      weeksAgo: (n) => `${n}w ago`,
-      monthsAgo: (n) => `${n}mo ago`,
-    },
+    nav: { trash: 'Trash' },
     recording: {
       rec: 'REC',
       secondsLeft: 'SECONDS LEFT',
@@ -507,24 +364,7 @@ export const STRINGS: Record<Locale, Dict> = {
       back: '← Back',
       newTag: '+ New tag',
       tagName: 'Tag name',
-      tagReading: 'Reading (optional, helps merge similar tags)',
-    },
-    tagList: {
-      title: 'Tags',
-      countSuffix: 'tags',
-      similarFound: '⚠ Similar tags detected',
-      mergeBtn: 'Merge →',
-      empty: 'No tags yet',
-    },
-    tagDetail: {
-      backToTagList: '← Tags',
-      chars: 'chars',
-      pdf: 'PDF',
-      addRecord: '+ Record',
-      edit: 'Edit',
-      delete: 'Delete',
-      confirmDelete: 'Move this memo to trash?',
-      empty: 'No memos in this tag yet',
+      tagReading: 'Reading (optional)',
     },
     edit: {
       undo: 'Undo',
@@ -555,8 +395,6 @@ export const STRINGS: Record<Locale, Dict> = {
       cloud: 'Cloud sync',
       language: 'Transcript language',
       notify: 'Notifications',
-      tagManage: 'Manage tags',
-      pdf: 'PDF settings',
       theme: (cur) => `Theme (${cur})`,
       guide: 'How to use',
       version: 'Version 1.0.0',
@@ -574,7 +412,6 @@ export const STRINGS: Record<Locale, Dict> = {
       vibrate: 'Vibration',
       theme: 'Theme',
       trashDays: 'Trash auto-delete',
-      pdfFont: 'PDF font',
       on: 'ON',
       off: 'OFF',
       dark: 'Dark',
@@ -613,41 +450,13 @@ export const STRINGS: Record<Locale, Dict> = {
       confirmDisconnect: 'Disconnect Google Drive?',
       errorLabel: 'Error',
     },
-    pdf: {
-      title: 'Export PDF',
-      preview: 'PREVIEW',
-      formatLabel: 'Format',
-      formatStyled: 'Styled PDF',
-      formatStyledSub: 'Tag, dates, formatted text',
-      formatPlain: 'Plain text',
-      formatPlainSub: 'Minimal styling',
-      outputLabel: 'Output',
-      outputSearchable: 'Searchable PDF (recommended)',
-      outputSearchableSub: 'Print dialog → Save as PDF',
-      outputImage: 'Image PDF',
-      outputImageSub: 'Direct download (not searchable)',
-      generate: 'Generate PDF',
-      generating: 'Generating…',
-      openPrint: 'Open print dialog',
-      empty: 'No memos',
-      statsTpl: (n, chars, date) => `${n} memos · ${chars} chars · ${date}`,
-    },
     search: {
       title: 'Search',
       placeholder: 'Search memos, tags, body',
       typeHint: 'Type a keyword',
       hits: (n) => `${n} hits`,
-      initialHelp: 'Search title, body, tag name, and reading.',
+      initialHelp: 'Search title, body, and tag name.',
       noResults: 'No matching memos',
-    },
-    tagManage: {
-      title: 'Manage tags',
-      backToMenu: '← Menu',
-      addTag: '+ Add tag',
-      deleteConfirm: (name) =>
-        `Delete "${name}"? Its memos will become untagged.`,
-      moveBefore: '↑',
-      moveAfter: '↓',
     },
     guide: {
       title: '📖 How to use',
@@ -674,16 +483,6 @@ export const STRINGS: Record<Locale, Dict> = {
           title: '🏷 Tags',
           items: [
             'Pick or create a tag on save',
-            'Add a reading to help similar-tag merging',
-            'Tag list auto-detects similars → one-tap merge',
-          ],
-        },
-        {
-          title: '📄 Export PDF',
-          items: [
-            'Tag detail → "PDF"',
-            'Searchable PDF: print dialog → save as PDF',
-            'Image PDF: direct download',
           ],
         },
         {
@@ -697,7 +496,7 @@ export const STRINGS: Record<Locale, Dict> = {
         {
           title: '🔊 Read aloud',
           items: [
-            'Tap 🔊 in tag detail or edit screens',
+            'Tap 🔊 in the edit screen',
             'Tap again to stop',
           ],
         },

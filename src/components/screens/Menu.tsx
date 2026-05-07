@@ -58,12 +58,6 @@ export function Menu({ onClose, onNavigate, theme, onToggleTheme, onOpenGuide }:
       icon: '🗑',
       label: t.nav.trash,
       action: () => onNavigate('trash'),
-    },
-    {
-      key: 'pdfSettings',
-      icon: '📄',
-      label: t.menu.pdf,
-      action: () => onNavigate('settings'),
       separatorAfter: true,
     },
     {

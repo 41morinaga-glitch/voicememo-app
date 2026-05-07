@@ -42,7 +42,6 @@ export type Settings = {
   notifySound: boolean;
   vibrate: boolean;
   trashAutoDeleteDays: number;
-  pdfFont: string;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -51,7 +50,6 @@ export const DEFAULT_SETTINGS: Settings = {
   notifySound: true,
   vibrate: true,
   trashAutoDeleteDays: 30,
-  pdfFont: 'Noto Sans JP',
 };
 
 export type Draft = {
