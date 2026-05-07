@@ -12,13 +12,12 @@ type Props = {
 
 export function Trash({
   memos,
-  tags,
+  tags: _tags,
   autoDeleteDays,
   onRestore,
   onPurgeAll,
 }: Props) {
   const { t } = useI18n();
-  const tagMap = useMemo(() => new Map(tags.map((tg) => [tg.id, tg])), [tags]);
   const trashed = useMemo(() => {
     return memos
       .filter((m) => !!m.deletedAt)
@@ -44,7 +43,6 @@ export function Trash({
           </div>
         )}
         {trashed.map((m) => {
-          const tag = tagMap.get(m.tagId);
           const remaining = remainingDays(m.deletedAt!, autoDeleteDays);
           return (
             <div

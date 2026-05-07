@@ -242,17 +242,6 @@ function App() {
     [memos, tags, persistMemos, persistTags, recomputeUsage],
   );
 
-  const handleDeleteMemo = useCallback(
-    (id: string) => {
-      const next = memos.map((m) =>
-        m.id === id ? { ...m, deletedAt: nowIso() } : m,
-      );
-      const nextTags = recomputeUsage(next, tags);
-      persistMemos(next);
-      persistTags(nextTags);
-    },
-    [memos, tags, persistMemos, persistTags, recomputeUsage],
-  );
 
   const handleRestoreMemo = useCallback(
     (id: string) => {
@@ -273,28 +262,6 @@ function App() {
     persistMemos(next);
   }, [memos, persistMemos]);
 
-  const handleMergeTags = useCallback(
-    (group: Tag[]) => {
-      if (group.length < 2) return;
-      const winner = [...group].sort((a, b) => b.usageCount - a.usageCount)[0];
-      const losers = group.filter((t) => t.id !== winner.id);
-      const loserIds = new Set(losers.map((t) => t.id));
-      if (
-        !confirm(
-          `「${losers.map((t) => t.name).join('、')}」を「${winner.name}」に統合しますか？`,
-        )
-      )
-        return;
-      const nextMemos = memos.map((m) =>
-        loserIds.has(m.tagId) ? { ...m, tagId: winner.id, updatedAt: nowIso() } : m,
-      );
-      const remaining = tags.filter((t) => !loserIds.has(t.id));
-      const nextTags = recomputeUsage(nextMemos, remaining);
-      persistMemos(nextMemos);
-      persistTags(nextTags);
-    },
-    [memos, tags, persistMemos, persistTags, recomputeUsage],
-  );
 
   const syncedCount = useMemo(
     () => memos.filter((m) => !m.deletedAt).length,
@@ -426,7 +393,7 @@ function App() {
         return (
           <Cloud
             syncedCount={syncedCount}
-            onBack={() => setView({ name: 'tags' })}
+            onBack={() => setView({ name: 'memoList' })}
             drive={{
               configured: drive.configured,
               connected: drive.connected,
