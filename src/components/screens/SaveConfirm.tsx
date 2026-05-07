@@ -1,35 +1,22 @@
 import { useState } from 'react';
 import { useI18n } from '../../i18n/I18nContext';
-import type { Draft, Tag } from '../../types';
+import type { Draft } from '../../types';
 
 type Props = {
   draft: Draft;
-  tags: Tag[];
-  onSave: (memo: { title: string; body: string; tagId: string }) => void;
+  onSave: (memo: { title: string; body: string }) => void;
   onRetake: () => void;
   onCancel: () => void;
 };
 
-export function SaveConfirm({ draft, tags, onSave, onRetake, onCancel }: Props) {
+export function SaveConfirm({ draft, onSave, onRetake, onCancel }: Props) {
   const { t } = useI18n();
   const [title, setTitle] = useState(draft.title);
   const [body, setBody] = useState(draft.body);
   const [editingTitle, setEditingTitle] = useState(false);
-  const [tagId, setTagId] = useState<string>(draft.suggestedTagId ?? tags[0]?.id ?? '');
-  const [newTagName, setNewTagName] = useState('');
-  const [newTagReading, setNewTagReading] = useState('');
-  const [creatingTag, setCreatingTag] = useState(false);
 
   const handleSave = () => {
-    let finalTagId = tagId;
-    if (creatingTag && newTagName.trim()) {
-      const reading = newTagReading.trim();
-      finalTagId = reading
-        ? `__new__:${newTagName.trim()}|${reading}`
-        : `__new__:${newTagName.trim()}`;
-    }
-    if (!finalTagId && tags[0]) finalTagId = tags[0].id;
-    onSave({ title: title.trim() || t.app.untitled, body, tagId: finalTagId });
+    onSave({ title: title.trim() || t.app.untitled, body });
   };
 
   return (
@@ -81,60 +68,6 @@ export function SaveConfirm({ draft, tags, onSave, onRetake, onCancel }: Props) 
               </>
             )}
           </div>
-        </div>
-
-        <div>
-          <div className="text-[9px] text-text3 tracking-[1px] mb-1">
-            {t.save.tagField}
-          </div>
-          <div className="flex gap-1.5 flex-wrap">
-            {tags.map((t) => {
-              const selected = !creatingTag && tagId === t.id;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => {
-                    setTagId(t.id);
-                    setCreatingTag(false);
-                  }}
-                  className={`rounded-full px-2.5 py-1 text-[9px] border transition-colors ${
-                    selected
-                      ? 'bg-accent/15 border-accent text-accent2'
-                      : 'bg-surface2 border-border text-text2'
-                  }`}
-                >
-                  {t.name}
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              onClick={() => setCreatingTag(true)}
-              className={`rounded-full px-2.5 py-1 text-[9px] border ${
-                creatingTag ? 'bg-accent/15 border-accent text-accent2' : 'bg-surface2 border-border text-text2'
-              }`}
-            >
-              {t.save.newTag}
-            </button>
-          </div>
-          {creatingTag && (
-            <div className="mt-2 flex flex-col gap-1.5">
-              <input
-                autoFocus
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-                placeholder={t.save.tagName}
-                className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-[11px] text-text1 outline-none focus:border-accent"
-              />
-              <input
-                value={newTagReading}
-                onChange={(e) => setNewTagReading(e.target.value)}
-                placeholder={t.save.tagReading}
-                className="w-full bg-surface2 border border-border rounded-lg px-3 py-2 text-[10px] text-text1 outline-none focus:border-accent"
-              />
-            </div>
-          )}
         </div>
 
         <div>

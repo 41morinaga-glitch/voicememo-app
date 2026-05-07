@@ -11,7 +11,7 @@ type MenuItem = {
 
 type Props = {
   onClose: () => void;
-  onNavigate: (target: 'voiceCommands' | 'settings' | 'cloud' | 'tagManage' | 'trash') => void;
+  onNavigate: (target: 'voiceCommands' | 'settings' | 'cloud' | 'trash') => void;
   theme?: 'dark' | 'light';
   onToggleTheme?: () => void;
   onOpenGuide?: () => void;
@@ -52,12 +52,6 @@ export function Menu({ onClose, onNavigate, theme, onToggleTheme, onOpenGuide }:
       label: t.menu.notify,
       action: () => onNavigate('settings'),
       separatorAfter: true,
-    },
-    {
-      key: 'tags',
-      icon: '🏷',
-      label: t.menu.tagManage,
-      action: () => onNavigate('tagManage'),
     },
     {
       key: 'trash',

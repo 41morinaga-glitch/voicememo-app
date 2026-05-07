@@ -26,19 +26,15 @@ export type VoiceCommands = {
 };
 
 export type View =
-  | { name: 'home' }
+  | { name: 'memoList' }
   | { name: 'recording'; appendToMemoId?: string }
   | { name: 'save'; draft: Draft; appendToMemoId?: string }
-  | { name: 'tags' }
-  | { name: 'tagDetail'; tagId: string }
   | { name: 'edit'; memoId: string }
   | { name: 'trash' }
-  | { name: 'pdfExport'; tagId: string }
   | { name: 'settings' }
   | { name: 'cloud' }
   | { name: 'voiceCommands' }
-  | { name: 'search' }
-  | { name: 'tagManage' };
+  | { name: 'search' };
 
 export type Settings = {
   maxRecordingSec: number;
