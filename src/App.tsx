@@ -378,11 +378,6 @@ function App() {
               handleUpdateMemo(memo.id, { ...patch, tagId: memo.tagId });
               setView({ name: 'memoList' });
             }}
-            onDelete={() => {
-              handleDeleteMemo(memo.id);
-              setView({ name: 'memoList' });
-            }}
-            onAddRecord={() => setView({ name: 'recording', appendToMemoId: memo.id })}
           />
         );
       }

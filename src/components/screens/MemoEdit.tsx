@@ -7,11 +7,9 @@ type Props = {
   memo: Memo;
   onBack: () => void;
   onSave: (patch: { title: string; body: string }) => void;
-  onDelete: () => void;
-  onAddRecord: () => void;
 };
 
-export function MemoEdit({ memo, onBack, onSave, onDelete, onAddRecord }: Props) {
+export function MemoEdit({ memo, onBack, onSave }: Props) {
   const [body, setBody] = useState(memo.body);
   const speak = useSpeak();
   const { t } = useI18n();
@@ -123,24 +121,6 @@ export function MemoEdit({ memo, onBack, onSave, onDelete, onAddRecord }: Props)
         >
           {t.edit.save}
         </button>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onAddRecord}
-            className="flex-1 bg-surface2 text-text2 border border-border rounded-[10px] py-2.5 text-[10px] min-h-[44px]"
-          >
-            {t.edit.addRecord}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (confirm(t.tagDetail.confirmDelete)) onDelete();
-            }}
-            className="flex-1 bg-surface2 text-accent border border-accent/30 rounded-[10px] py-2.5 text-[10px] min-h-[44px]"
-          >
-            {t.edit.delete}
-          </button>
-        </div>
       </div>
     </>
   );
