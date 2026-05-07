@@ -27,7 +27,7 @@ export type VoiceCommands = {
 
 export type View =
   | { name: 'memoList' }
-  | { name: 'recording'; appendToMemoId?: string }
+  | { name: 'recording'; appendToMemoId?: string; pendingBody?: string }
   | { name: 'save'; draft: Draft; appendToMemoId?: string }
   | { name: 'edit'; memoId: string }
   | { name: 'trash' }

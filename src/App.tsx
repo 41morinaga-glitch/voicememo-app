@@ -322,10 +322,12 @@ function App() {
             autoSave={autoRecordMode}
             stopRef={stopRecordingRef}
             onComplete={(draft) => {
-              if (draft.autoSave) {
-                handleAutoSave(draft);
+              const parts = [view.pendingBody, draft.body].filter(Boolean);
+              const combinedDraft = { ...draft, body: parts.join('\n\n') };
+              if (combinedDraft.autoSave) {
+                handleAutoSave(combinedDraft);
               } else {
-                setView({ name: 'save', draft, appendToMemoId: view.appendToMemoId });
+                setView({ name: 'save', draft: combinedDraft, appendToMemoId: view.appendToMemoId });
               }
             }}
             onCancel={() => {
@@ -353,7 +355,7 @@ function App() {
               }
               handleSaveMemo(input);
             }}
-            onRetake={() => setView({ name: 'recording', appendToMemoId: view.appendToMemoId })}
+            onRetake={() => setView({ name: 'recording', appendToMemoId: view.appendToMemoId, pendingBody: view.draft.body })}
             onCancel={() => setView({ name: 'memoList' })}
           />
         );

@@ -171,7 +171,12 @@ export function useRecorder({ maxSec = 30, lang = 'ja-JP' }: Options = {}): Resu
           setTranscript((finalTextRef.current + interim).trim());
         };
         rec.onerror = () => {};
-        rec.onend = () => {};
+        // iOS stops SpeechRecognition mid-session; restart if MediaRecorder is still active
+        rec.onend = () => {
+          if (mediaRecorderRef.current?.state === 'recording') {
+            try { rec.start(); } catch {}
+          }
+        };
         try {
           rec.start();
           recognitionRef.current = rec;

@@ -18,7 +18,6 @@ const BAR_COUNT = 18;
 export function Recording({ maxSec, commands, autoSave, stopRef, onComplete, onCancel }: Props) {
   const { t, locale } = useI18n();
   const recorder = useRecorder({ maxSec, lang: locale === 'en' ? 'en-US' : 'ja-JP' });
-  const startedRef = useRef(false);
 
   useEffect(() => {
     if (stopRef) stopRef.current = () => recorder.stop();
@@ -26,10 +25,10 @@ export function Recording({ maxSec, commands, autoSave, stopRef, onComplete, onC
   }, [stopRef, recorder]);
 
   useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
     recorder.start().catch(() => {});
-  }, [recorder]);
+    // recorder.start is stable (memoized); run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const parsed = useMemo(
     () => parseTranscript(recorder.transcript, commands),
