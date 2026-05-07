@@ -1,22 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSpeak } from '../../hooks/useSpeak';
 import { useI18n } from '../../i18n/I18nContext';
-import type { Memo, Tag } from '../../types';
+import type { Memo } from '../../types';
 
 type Props = {
   memo: Memo;
-  tag: Tag | null;
-  tags: Tag[];
   onBack: () => void;
-  onSave: (patch: { title: string; body: string; tagId: string }) => void;
+  onSave: (patch: { title: string; body: string }) => void;
   onDelete: () => void;
   onAddRecord: () => void;
 };
 
-export function MemoEdit({ memo, tag, tags, onBack, onSave, onDelete, onAddRecord }: Props) {
+export function MemoEdit({ memo, onBack, onSave, onDelete, onAddRecord }: Props) {
   const [title, setTitle] = useState(memo.title);
   const [body, setBody] = useState(memo.body);
-  const [tagId, setTagId] = useState(memo.tagId);
   const speak = useSpeak();
   const { t } = useI18n();
   const historyRef = useRef<{ title: string; body: string }[]>([
@@ -67,7 +64,7 @@ export function MemoEdit({ memo, tag, tags, onBack, onSave, onDelete, onAddRecor
         onClick={onBack}
         className="text-[10px] text-text3 px-5 mt-2 text-left"
       >
-        ← {tag?.name ?? t.nav.tags}
+        ← {t.app.name}
       </button>
 
       <div className="px-5 mt-2 text-[12px] font-bold text-text1">
@@ -108,7 +105,7 @@ export function MemoEdit({ memo, tag, tags, onBack, onSave, onDelete, onAddRecor
         <div className="ml-auto" />
         <button
           type="button"
-          onClick={() => onSave({ title, body, tagId })}
+          onClick={() => onSave({ title, body })}
           className="border border-accent/30 rounded px-2 py-1 text-[9px] text-accent min-h-[28px]"
         >
           {t.edit.done}
@@ -124,29 +121,6 @@ export function MemoEdit({ memo, tag, tags, onBack, onSave, onDelete, onAddRecor
         />
       </div>
 
-      <div className="px-5 mt-2">
-        <div className="text-[9px] text-text3 tracking-[1px] mb-1">{t.edit.tagField}</div>
-        <div className="flex gap-1.5 flex-wrap">
-          {tags.map((tg) => {
-            const selected = tagId === tg.id;
-            return (
-              <button
-                key={tg.id}
-                type="button"
-                onClick={() => setTagId(tg.id)}
-                className={`rounded-full px-2.5 py-1 text-[9px] border transition-colors ${
-                  selected
-                    ? 'bg-accent/15 border-accent text-accent2'
-                    : 'bg-surface2 border-border text-text2'
-                }`}
-              >
-                {tg.name}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       <div className="px-5 mt-2 flex-1 overflow-hidden flex flex-col">
         <textarea
           value={body}
@@ -159,7 +133,7 @@ export function MemoEdit({ memo, tag, tags, onBack, onSave, onDelete, onAddRecor
       <div className="px-5 pt-3 pb-3 flex flex-col gap-2 flex-shrink-0">
         <button
           type="button"
-          onClick={() => onSave({ title, body, tagId })}
+          onClick={() => onSave({ title, body })}
           className="bg-accent text-white rounded-[10px] py-3 text-[11px] font-bold tracking-[1px] min-h-[44px] active:scale-[0.99]"
         >
           {t.edit.save}

@@ -4,23 +4,18 @@ import { useSwipeNav } from './hooks/useSwipeNav';
 import { useTheme } from './hooks/useTheme';
 import { PhoneFrame } from './components/PhoneFrame';
 import { BottomNav } from './components/BottomNav';
-import { Home } from './components/screens/Home';
+import { MemoList } from './components/screens/MemoList';
 import { Recording } from './components/screens/Recording';
 import { SaveConfirm } from './components/screens/SaveConfirm';
-import { TagList } from './components/screens/TagList';
-import { TagDetail } from './components/screens/TagDetail';
 import { MemoEdit } from './components/screens/MemoEdit';
 import { Trash } from './components/screens/Trash';
 import { Menu } from './components/screens/Menu';
 import { Settings } from './components/screens/Settings';
 import { VoiceCommands } from './components/screens/VoiceCommands';
 import { Cloud } from './components/screens/Cloud';
-import { PDFExport } from './components/screens/PDFExport';
 import { Search } from './components/screens/Search';
-import { TagManage } from './components/screens/TagManage';
 import { UsageGuide } from './components/UsageGuide';
 import { Toast } from './components/Toast';
-import { findBestTag } from './lib/tagMatch';
 import { notifySaved, notifyStart } from './lib/feedback';
 import { useI18n } from './i18n/I18nContext';
 import {
@@ -59,7 +54,7 @@ function App() {
     return params.get('autoRecord') === 'true' || params.get('autoRecord') === '1';
   }, []);
   const [view, setView] = useState<View>(() =>
-    initialAutoRecord ? { name: 'recording' } : { name: 'home' },
+    initialAutoRecord ? { name: 'recording' } : { name: 'memoList' },
   );
   const [autoRecordMode, setAutoRecordMode] = useState(initialAutoRecord);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -191,73 +186,51 @@ function App() {
 
   const handleSaveMemo = useCallback(
     (
-      input: { title: string; body: string; tagId: string },
+      input: { title: string; body: string },
       opts?: { silent?: boolean; afterSave?: () => void },
     ) => {
-      let tagList = tags;
-      let tagId = input.tagId;
-      if (tagId.startsWith('__new__:')) {
-        const payload = tagId.slice('__new__:'.length);
-        const [name, reading] = payload.split('|');
-        const newTag: Tag = {
-          id: uid(),
-          name,
-          ...(reading ? { reading } : {}),
-          usageCount: 0,
-          createdAt: nowIso(),
-        };
-        tagList = [...tags, newTag];
-        tagId = newTag.id;
-      }
       const now = nowIso();
       const memo: Memo = {
         id: uid(),
         title: input.title,
         body: input.body,
-        tagId,
+        tagId: tags[0]?.id ?? '',
         createdAt: now,
         updatedAt: now,
       };
       const nextMemos = [memo, ...memos];
-      const nextTags = recomputeUsage(nextMemos, tagList);
       persistMemos(nextMemos);
-      persistTags(nextTags);
       if (!opts?.silent) {
         notifySaved({ sound: settings.notifySound, vibrate: settings.vibrate });
       }
       if (opts?.afterSave) opts.afterSave();
-      else setView({ name: 'tagDetail', tagId });
+      else setView({ name: 'memoList' });
     },
-    [memos, tags, persistMemos, persistTags, recomputeUsage, settings.notifySound, settings.vibrate],
+    [memos, tags, persistMemos, settings.notifySound, settings.vibrate],
   );
 
   const handleAutoSave = useCallback(
     (draft: { title: string; body: string; tagPhrase?: string }) => {
       if (!draft.body && !draft.title) {
-        setView({ name: 'home' });
+        setView({ name: 'memoList' });
         setAutoRecordMode(false);
         return;
       }
-      const matched = draft.tagPhrase
-        ? findBestTag(draft.tagPhrase, tags, new Map())
-        : null;
-      const tagId = matched?.id ?? tags[0]?.id ?? '';
       handleSaveMemo(
         {
           title: draft.title.trim() || draft.body.split(/[。.！!？?\n]/)[0]?.slice(0, 20) || t.app.untitled,
           body: draft.body,
-          tagId,
         },
         {
           afterSave: () => {
             setToast({ message: t.toast.saved, kind: 'success' });
-            setView({ name: 'home' });
+            setView({ name: 'memoList' });
             setAutoRecordMode(false);
           },
         },
       );
     },
-    [tags, handleSaveMemo, t.app.untitled, t.toast.saved],
+    [handleSaveMemo, t.app.untitled, t.toast.saved],
   );
 
   const handleUpdateMemo = useCallback(
@@ -333,14 +306,12 @@ function App() {
 
   const renderView = () => {
     switch (view.name) {
-      case 'home':
+      case 'memoList':
         return (
-          <Home
-            tags={tags}
+          <MemoList
             memos={memos}
+            onOpenMemo={(id) => setView({ name: 'edit', memoId: id })}
             onMenuTap={() => setMenuOpen(true)}
-            onEditMemo={(id) => setView({ name: 'edit', memoId: id })}
-            onDeleteMemo={handleDeleteMemo}
           />
         );
       case 'recording':
@@ -351,14 +322,16 @@ function App() {
             autoSave={autoRecordMode}
             stopRef={stopRecordingRef}
             onComplete={(draft) => {
-              if (draft.autoSave) {
-                handleAutoSave(draft);
+              const parts = [view.pendingBody, draft.body].filter(Boolean);
+              const combinedDraft = { ...draft, body: parts.join('\n\n') };
+              if (combinedDraft.autoSave) {
+                handleAutoSave(combinedDraft);
               } else {
-                setView({ name: 'save', draft, appendToMemoId: view.appendToMemoId });
+                setView({ name: 'save', draft: combinedDraft, appendToMemoId: view.appendToMemoId });
               }
             }}
             onCancel={() => {
-              setView({ name: 'home' });
+              setView({ name: 'memoList' });
               setAutoRecordMode(false);
             }}
           />
@@ -367,7 +340,6 @@ function App() {
         return (
           <SaveConfirm
             draft={view.draft}
-            tags={tags}
             onSave={(input) => {
               const appendId = view.appendToMemoId;
               if (appendId) {
@@ -377,63 +349,33 @@ function App() {
                     title: existing.title,
                     body: existing.body ? existing.body + '\n\n' + input.body : input.body,
                   });
-                  setView({ name: 'tagDetail', tagId: existing.tagId });
+                  setView({ name: 'memoList' });
                   return;
                 }
               }
               handleSaveMemo(input);
             }}
-            onRetake={() => setView({ name: 'recording', appendToMemoId: view.appendToMemoId })}
-            onCancel={() => setView({ name: 'home' })}
+            onRetake={() => setView({ name: 'recording', appendToMemoId: view.appendToMemoId, pendingBody: view.draft.body })}
+            onCancel={() => setView({ name: 'memoList' })}
           />
         );
-      case 'tags':
-        return (
-          <TagList
-            tags={tags}
-            memos={memos}
-            onTagTap={(id) => setView({ name: 'tagDetail', tagId: id })}
-            onMerge={handleMergeTags}
-          />
-        );
-      case 'tagDetail': {
-        const tag = tags.find((t) => t.id === view.tagId);
-        if (!tag) {
-          setView({ name: 'tags' });
-          return null;
-        }
-        return (
-          <TagDetail
-            tag={tag}
-            memos={memos}
-            onBack={() => setView({ name: 'tags' })}
-            onEditMemo={(id) => setView({ name: 'edit', memoId: id })}
-            onDeleteMemo={handleDeleteMemo}
-            onAddRecord={() => setView({ name: 'recording' })}
-            onPdfExport={() => setView({ name: 'pdfExport', tagId: tag.id })}
-          />
-        );
-      }
       case 'edit': {
         const memo = memos.find((m) => m.id === view.memoId);
         if (!memo) {
-          setView({ name: 'home' });
+          setView({ name: 'memoList' });
           return null;
         }
-        const tag = tags.find((t) => t.id === memo.tagId) ?? null;
         return (
           <MemoEdit
             memo={memo}
-            tag={tag}
-            tags={tags}
-            onBack={() => setView({ name: 'tagDetail', tagId: memo.tagId })}
+            onBack={() => setView({ name: 'memoList' })}
             onSave={(patch) => {
-              handleUpdateMemo(memo.id, patch);
-              setView({ name: 'tagDetail', tagId: patch.tagId ?? memo.tagId });
+              handleUpdateMemo(memo.id, { ...patch, tagId: memo.tagId });
+              setView({ name: 'memoList' });
             }}
             onDelete={() => {
               handleDeleteMemo(memo.id);
-              setView({ name: 'tagDetail', tagId: memo.tagId });
+              setView({ name: 'memoList' });
             }}
             onAddRecord={() => setView({ name: 'recording', appendToMemoId: memo.id })}
           />
@@ -449,27 +391,12 @@ function App() {
             onPurgeAll={handlePurgeAllTrash}
           />
         );
-      case 'pdfExport': {
-        const tag = tags.find((t) => t.id === view.tagId);
-        if (!tag) {
-          setView({ name: 'tags' });
-          return null;
-        }
-        return (
-          <PDFExport
-            tag={tag}
-            memos={memos}
-            pdfFont={settings.pdfFont}
-            onBack={() => setView({ name: 'tagDetail', tagId: tag.id })}
-          />
-        );
-      }
       case 'settings':
         return (
           <Settings
             settings={settings}
             onChange={persistSettings}
-            onBack={() => setView({ name: 'home' })}
+            onBack={() => setView({ name: 'memoList' })}
             theme={themeCtl.theme}
             onToggleTheme={themeCtl.toggle}
           />
@@ -479,7 +406,7 @@ function App() {
           <VoiceCommands
             commands={commands}
             onChange={persistCommands}
-            onBack={() => setView({ name: 'home' })}
+            onBack={() => setView({ name: 'memoList' })}
           />
         );
       case 'search':
@@ -491,29 +418,11 @@ function App() {
             onOpenMemo={(id) => setView({ name: 'edit', memoId: id })}
           />
         );
-      case 'tagManage':
-        return (
-          <TagManage
-            tags={tags}
-            onChange={(next) => persistTags(next)}
-            onDelete={(tagId) => {
-              const remainingTags = tags.filter((tg) => tg.id !== tagId);
-              const reassignedMemos = memos.map((m) =>
-                m.tagId === tagId
-                  ? { ...m, tagId: remainingTags[0]?.id ?? '', updatedAt: nowIso() }
-                  : m,
-              );
-              persistTags(recomputeUsage(reassignedMemos, remainingTags));
-              persistMemos(reassignedMemos);
-            }}
-            onBack={() => setView({ name: 'home' })}
-          />
-        );
       case 'cloud':
         return (
           <Cloud
             syncedCount={syncedCount}
-            onBack={() => setView({ name: 'home' })}
+            onBack={() => setView({ name: 'tags' })}
             drive={{
               configured: drive.configured,
               connected: drive.connected,
@@ -560,18 +469,12 @@ function App() {
     }
   };
 
-  const activeNav =
-    view.name === 'tags' || view.name === 'tagDetail' || view.name === 'tagManage'
-      ? 'tags'
-      : 'home';
-
-  const swipeActiveNav: 'home' | 'tags' | 'recording' =
-    view.name === 'recording' ? 'recording' : activeNav;
+  const swipeActiveNav: 'memoList' | 'recording' =
+    view.name === 'recording' ? 'recording' : 'memoList';
 
   const swipeNav = useSwipeNav(swipeActiveNav, (next) => {
     if (next === 'recording') setView({ name: 'recording' });
-    else if (next === 'tags') setView({ name: 'tags' });
-    else setView({ name: 'home' });
+    else setView({ name: 'memoList' });
   });
 
   const startVoiceSearch = useCallback(() => {
@@ -634,7 +537,7 @@ function App() {
   );
 
   // Only attach swipe on top-level nav screens (not inside detail/edit screens)
-  const isSwipeable = view.name === 'home' || view.name === 'tags' || view.name === 'recording';
+  const isSwipeable = view.name === 'memoList' || view.name === 'recording';
 
   return (
     <PhoneFrame>
@@ -657,7 +560,7 @@ function App() {
                   const q = e.target.value;
                   setSearchQuery(q);
                   if (q && view.name !== 'search') setView({ name: 'search' });
-                  if (!q && view.name === 'search') setView({ name: 'home' });
+                  if (!q && view.name === 'search') setView({ name: 'tags' });
                 }}
                 placeholder={voiceSearching ? '聞いています…' : t.search.placeholder}
                 className="flex-1 bg-transparent text-[14px] text-text1 placeholder:text-text3 outline-none min-w-0"
@@ -665,7 +568,7 @@ function App() {
               {searchQuery ? (
                 <button
                   type="button"
-                  onClick={() => { setSearchQuery(''); if (view.name === 'search') setView({ name: 'home' }); }}
+                  onClick={() => { setSearchQuery(''); if (view.name === 'search') setView({ name: 'tags' }); }}
                   className="text-text3 text-[12px] flex-shrink-0"
                 >✕</button>
               ) : (
@@ -681,14 +584,7 @@ function App() {
         </div>
       )}
       {view.name !== 'save' && (
-        <BottomNav
-          active={activeNav}
-          onChange={(k) => {
-            if (k === 'tags') setView({ name: 'tags' });
-            else setView({ name: 'home' });
-          }}
-          recordButton={recordButton}
-        />
+        <BottomNav recordButton={recordButton} />
       )}
       {menuOpen && (
         <Menu
@@ -698,8 +594,7 @@ function App() {
             if (target === 'settings') setView({ name: 'settings' });
             else if (target === 'cloud') setView({ name: 'cloud' });
             else if (target === 'voiceCommands') setView({ name: 'voiceCommands' });
-            else if (target === 'trash') setView({ name: 'trash' });
-            else setView({ name: 'tagManage' });
+            else setView({ name: 'trash' });
           }}
           theme={themeCtl.theme}
           onToggleTheme={themeCtl.toggle}
