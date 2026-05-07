@@ -569,9 +569,7 @@ function App() {
           </div>
         </div>
       )}
-      {view.name !== 'save' && (
-        <BottomNav recordButton={recordButton} />
-      )}
+      <BottomNav recordButton={recordButton} />
       {menuOpen && (
         <Menu
           onClose={() => setMenuOpen(false)}
